@@ -98,6 +98,11 @@ a:hover { color: var(--teal-dark); text-decoration: underline; text-underline-of
   border: 1px solid var(--teal-soft); background: var(--teal-soft);
 }
 .nav-links .lang-link:hover { background: var(--teal); color: #fff; border-color: var(--teal); }
+.nav-links .email-link {
+  font-size: 16px; line-height: 1;
+  color: var(--text); padding: 8px 10px;
+}
+.nav-links .email-link:hover { background: var(--teal-soft); color: var(--teal-dark); }
 
 @media (max-width: 720px) {
   .nav { flex-direction: column; gap: 12px; padding: 12px 16px; }
