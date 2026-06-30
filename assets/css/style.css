@@ -361,6 +361,15 @@ a:hover { color: var(--teal-dark); text-decoration: underline; text-underline-of
   text-align: center; color: var(--text-soft);
   font-size: 14px; margin-top: 32px;
 }
+.connect-license {
+  text-align: center; color: var(--text-soft);
+  font-size: 13px; line-height: 1.6;
+  max-width: 640px; margin: 16px auto 0;
+  padding: 16px 20px;
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
 
 /* ===========================================================================
    Footer
