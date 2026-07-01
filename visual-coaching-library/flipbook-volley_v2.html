@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Visual Coaching Library — VOLLEY+</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+/* ----------------------------------------------------------------
+   Visual Coaching Library — Flipbook CSS (2-page spread navigation)
+
+   Pages are arranged in a horizontal strip. The viewer shows two pages
+   at a time (one logical spread). Click/arrow keys translate the strip
+   by one column (two pages). Each click reveals two new pages.
+
+   No 3D transforms, no external deps — works in any browser.
+   ---------------------------------------------------------------- */
+:root {
+  --page-w: 720px;
+  --page-h: 880px;
+  --page-radius: 4px;
+  --bg: #1f2933;
+  --paper: #fcfaf6;
+  --ink: #1f2933;
+  --ink-soft: #495057;
+  --accent: #0F5132;
+  --accent-2: #198754;
+  --accent-blue: #0D6EFD;
+  --accent-orange: #C73E1D;
+  --rule: #c4b5a0;
+  --shadow: rgba(0,0,0,0.25);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); color: #ddd;
+  font-family: "Segoe UI", "DejaVu Sans", "Liberation Sans", Helvetica, Arial, sans-serif; }
+body { display: flex; flex-direction: column; overflow: hidden; }
+
+header.bar {
+  height: 50px; background: #0d1419; color: #ddd;
+  display: flex; align-items: center; padding: 0 16px;
+  border-bottom: 1px solid #2a343e; flex-shrink: 0;
+}
+header.bar h1 { font-size: 16px; margin: 0; flex-grow: 1; letter-spacing: 0.4px; }
+header.bar .nav-btn {
+  background: #2a343e; color: #ddd; border: 1px solid #3a4451;
+  padding: 6px 14px; margin-left: 8px; border-radius: 4px; cursor: pointer;
+  font-size: 13px;
+}
+header.bar .nav-btn:hover { background: #3a4451; }
+header.bar .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+header.bar .progress { margin-left: 16px; font-size: 12px; color: #98a4b3; min-width: 110px; }
+
+main.stage {
+  flex-grow: 1; display: block;  /* plain block; strip is positioned with translateX */
+  position: relative; overflow: hidden;
+}
+
+/* The viewport shows two .page side-by-side. We translate the strip
+   by increments of (2 * page-w) so each step moves two pages. */
+.strip {
+  display: flex;
+  align-items: stretch;
+  transition: transform 0.5s ease-in-out;
+  /* the strip itself is taller than viewport so vertical scroll inside is possible */
+}
+
+.page {
+  flex: 0 0 var(--page-w);
+  width: var(--page-w);
+  height: var(--page-h);
+  background: var(--paper);
+  color: var(--ink);
+  position: relative;
+  box-shadow: 0 8px 24px var(--shadow), inset 0 0 0 1px rgba(0,0,0,0.05);
+  overflow: hidden;
+  margin: 0;
+  /* Pair pages sit side-by-side: subtle inner shadow at spine */
+}
+.page + .page { border-left: 1px solid var(--rule); }
+
+.page-inner {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  padding: 28px 32px;
+  overflow-y: auto;
+}
+
+/* Typography */
+.page h1.cover-h1 { font-size: 36px; font-weight: 700; color: var(--accent); margin: 4px 0;
+  text-align: center; line-height: 1.15; }
+.page h2.page-h2 { font-size: 18px; font-weight: 700; color: var(--accent-2); margin: 4px 0 10px 0; }
+.page h3.block-h3 { font-size: 12px; font-weight: 700; color: var(--accent); margin: 12px 0 4px 0;
+  text-transform: uppercase; letter-spacing: 0.6px; }
+.page p, .page li { font-size: 13px; line-height: 1.55; color: var(--ink); }
+.page p { margin: 0 0 8px 0; }
+.page ul, .page ol { margin: 0 0 10px 18px; padding: 0 0 0 4px; }
+
+/* Cover-specific */
+.cover-page { background: linear-gradient(135deg, #fff 0%, #f5efe4 100%); }
+.cover-page .cover-tagline { font-size: 16px; color: var(--accent-2); text-align: center;
+  margin: 4px 0 12px 0; font-style: italic; }
+.cover-page .cover-icon { font-size: 14px; text-align: center; font-weight: 700;
+  letter-spacing: 3px; color: var(--ink-soft); background: #f1ebdc; padding: 4px 16px;
+  border-radius: 3px; width: max-content; margin: 6px auto 14px auto; display: block; }
+.cover-page .cover-meta { text-align: center; font-size: 13px; color: var(--ink-soft); margin: 6px 0; }
+.cover-page .cover-topics { list-style: none; padding: 0; margin: 10px auto 0 auto; max-width: 90%;
+  text-align: center; }
+.cover-page .cover-topics li { font-size: 13px; margin: 3px 0; color: var(--ink); }
+.cover-page .cover-foot { text-align: center; font-size: 11px; color: var(--ink-soft); margin: 4px 0; }
+.cover-page .cover-foot.small { font-size: 10px; }
+.cover-page .cover-intro p { font-size: 12.5px; line-height: 1.5; margin: 4px 0; }
+
+.index-page .page-index li { font-size: 12.5px; line-height: 1.55; color: var(--ink-soft);
+  margin: 6px 0; }
+
+.spacer-30 { height: 28px; }
+
+/* Divider page */
+.divider-page { background: linear-gradient(135deg, #fff 0%, #f5efe4 100%); }
+.divider-eyebrow { text-align: center; font-size: 10px; letter-spacing: 3px;
+  color: var(--ink-soft); margin-bottom: 30px; text-transform: uppercase; }
+.blank-page-divider .small-print { color: var(--ink-soft); font-size: 10px; font-style: italic; }
+
+/* Image page */
+.image-page .image-wrap {
+  width: 100%; height: 520px;
+  display: flex; align-items: center; justify-content: center;
+  background: #eee; border: 1px solid var(--rule); border-radius: 4px;
+  overflow: hidden; margin-bottom: 12px;
+}
+.image-page .image-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.image-page .card-title-en, .image-page .card-title-vi {
+  font-size: 13px; margin: 4px 0; line-height: 1.4;
+}
+.image-page .card-title-vi { color: var(--accent-orange); }
+.image-page .quality-line { font-size: 10.5px; color: var(--ink-soft); margin: 4px 0; }
+.image-page .caption-line { font-size: 12px; margin: 6px 0 0 0; line-height: 1.45; }
+
+.page-header { border-bottom: 1px solid var(--rule); padding-bottom: 6px; margin-bottom: 12px; }
+.page-label { font-size: 10px; color: var(--ink-soft); text-transform: uppercase;
+  letter-spacing: 1.2px; font-weight: 600; }
+
+/* Cue page */
+.cue-page .cue-label { font-size: 10px; color: var(--ink-soft); margin: 4px 0 2px 0;
+  text-transform: uppercase; font-weight: 700; letter-spacing: 1px; }
+.cue-page .cue-en, .cue-page .cue-vi {
+  margin: 0 0 8px 0; padding: 10px 14px; font-size: 13px; line-height: 1.5;
+  font-style: italic; border-radius: 4px; font-weight: 600;
+}
+.cue-page .cue-en { background: #E7F1FF; color: var(--accent-blue); border-left: 4px solid var(--accent-blue); }
+.cue-page .cue-vi { background: #FFF4E5; color: var(--accent-orange); border-left: 4px solid var(--accent-orange); }
+.cue-page .block-bullets li { font-size: 12.5px; line-height: 1.45; margin: 3px 0; }
+
+/* Why page */
+
+
+.why-page .md-quote { background: #F8F9FA; border-left: 4px solid #cbd5e1;
+  padding: 8px 12px; font-size: 12px; line-height: 1.5; color: var(--ink);
+  border-radius: 4px; margin: 5px 0; font-style: italic; }.why-page .md-instruction { background: #F0F9F4; border-left: 4px solid #5a8a5e; font-style: normal; font-size: 12.5px; line-height: 1.5; color: var(--ink); }.why-page .md-instruction-vi { background: #FFFAF0; border-left-color: #d4a574; color: #444; font-style: italic; }.why-page .vi-label { color: #666; font-size: 12px; font-weight: normal; font-style: italic; }
+
+/* Summary */
+.summary-page .takeaway-list, .summary-page .drill-list { padding-left: 20px; }
+.summary-page .takeaway-list li { font-size: 13px; line-height: 1.55; margin: 6px 0; color: var(--accent); }
+.summary-page .drill-list li { font-size: 12px; line-height: 1.5; margin: 3px 0;
+  border-left: 3px solid var(--accent-2); padding-left: 8px; }
+
+/* End page */
+.end-page { background: #f5efe4; text-align: center; padding: 60px 20px; }
+.end-h3 { font-size: 20px; color: var(--accent); }
+.end-line { font-size: 11px; color: var(--ink-soft); margin-top: 10px; }
+
+footer.bar {
+  height: 38px; background: #0d1419; color: #98a4b3;
+  display: flex; align-items: center; justify-content: center; padding: 0 16px;
+  font-size: 11px; border-top: 1px solid #2a343e; flex-shrink: 0;
+}
+footer.bar kbd { background: #2a343e; padding: 1px 6px; border-radius: 3px;
+  margin: 0 3px; font-family: ui-monospace, "Cascadia Code", monospace; font-size: 10px; }
+
+@media (max-width: 1500px) {
+  :root { --page-w: 560px; --page-h: 760px; }
+}
+@media (max-width: 1180px) {
+  :root { --page-w: 420px; --page-h: 600px; }
+}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <h1>Visual Coaching Library — VOLLEY+</h1>
+  <span class="progress" id="progress">Page 1 of 1</span>
+  <button class="nav-btn" id="btn-start">« First</button>
+  <button class="nav-btn" id="btn-prev">‹ Prev</button>
+  <button class="nav-btn" id="btn-next">Next ›</button>
+  <button class="nav-btn" id="btn-end">Last »</button>
+  <button class="nav-btn" id="btn-print">Print / Save PDF</button>
+</header>
+
+<main class="stage">
+  <div class="strip" id="strip">
+    <!-- Pages are populated by JS from the page-host below -->
+    <div class="page-host" id="page-host" style="display:none;">
+      
+<section class="page cover-page">
+  <div class="page-inner">
+    <h1 class="cover-h1">Visual Coaching Library</h1>
+    <p class="cover-tagline">Volley Lỗi Thường Gặp + Cuộn Người (Coil) — Sửa Sai, Tăng Lực</p>
+    <div class="cover-icon">[VOLLEY+]</div>
+    <div class="spacer-30"></div>
+    <p class="cover-meta">2 cards  ·  master-coach-direct</p>
+    <div class="cover-intro"><p>Hai thẻ bổ sung cho chủ đề volley — một từ góc 'sửa lỗi', một từ góc 'tạo lực'. Cùng đọc với 3 thẻ volley gốc (Less is More, Footwork, Tension & Integrity) để có bức tranh đầy đủ.</p><p>Thẻ 1 tổng hợp 5 lỗi volley phổ biến nhất ở người chơi nghiệp dư, từ 'mở vợt trễ' đến 'lắc cổ tay'. Mỗi lỗi kèm sửa cụ thể: mở vợt 2h thay vì 4h, khóa cổ tay dùng vai, bước chân lên trước...</p><p>Thẻ 2 so sánh 2 kiểu cuộn người (coil) trong forehand — side-bend mở (xoay nhiều) vs straight-body closed (thẳng, bước tới). Mỗi kiểu có trade-off riêng: torque nhiều nhưng cần core khỏe, hoặc đơn giản hơn nhưng cần thời gian bước vào. Không có kiểu nào đúng mọi lúc — chọn theo tình huống.</p></div>
+    <div class="spacer-30"></div>
+    <p class="cover-foot">June 2026 — bilingual EN + VI<br>
+    Source: MD notes + Gemini-generated images</p>
+  </div>
+</section>
+<section class="page index-page">
+  <div class="page-inner">
+    <h2 class="page-h2">Index of Cards</h2>
+    <ol class="page-index">
+      <li>5 Common Volley Mistakes & Fixes  ·  quality: 3/5 (gemini-vi sample, 2026-06-29) — marginal, see caveats</li><li>Coil Styles: Side-Bend vs Straight-Body for Forehand Stance Choice  ·  quality: 3/5 (gemini-vi sample, 2026-06-29) — marginal, see caveats</li>
+    </ol>
+  </div>
+</section>
+
+
+<section class="page image-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 1  ·  VOLLEY+  ·  Image &amp; Caption</span>
+    </header>
+    <div class="image-wrap">
+      <img src="file:///C:/Users/Henry/Pictures/My%20Notes/Gemini%20Vi/Gemini_Generated_Image_4t8l774t8l774t8l.png" alt="5 Common Volley Mistakes & Fixes" loading="eager">
+    </div>
+    <div class="image-caption-block">
+      <p class="card-title-en"><b>EN:</b> 5 Common Volley Mistakes & Fixes</p>
+      <p class="card-title-vi"><b>VI:</b> 5 Lỗi Volley Thường Gặp & Cách Khắc Phục</p>
+      <p class="quality-line">Quality: 3/5 (gemini-vi sample, 2026-06-29) — marginal, see caveats (vision-QA, June 2026) ·
+        Path: <i>Gemini_Generated_Image_4t8l774t8l774t8l.png</i></p>
+      <p class="caption-line">Red/green comparison chart (Lỗi vs Khắc phục) with 5 numbered mistake/fix pairs. Forehand & Backhand volley 3-step sequences at bottom right.</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="page cue-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 1  ·  VOLLEY+  ·  Cue &amp; Reading</span>
+    </header>
+    <p class="cue-label">CUE (EN)</p>
+    <blockquote class="cue-en">"Volley is attack. Be proactive. Step forward, not back. Open racket early, contact in front, sudden stop. Không ngả sau, không lắc cổ tay."</blockquote>
+    <p class="cue-label">CUE (VI)</p>
+    <blockquote class="cue-vi">"Volley là tấn công. Bước chân lên trước, không chờ bóng. Mở vợt sớm (2h thay vì 4h), tiếp xúc phía trước người, mặt vợt vuông góc 90°. Khóa cổ tay, dùng vai sau để tạo lực. Đừng ngả người ra sau — HLV gọi đây là 'lỗi volley #1 của 50+'."</blockquote>
+    <h3 class="block-h3">What the diagram is saying</h3>
+    <ul class="block-bullets"><li>Lỗi 1: 'Chờ bóng & mở vợt trễ' (4h position, red X) — Fix: 'Mở vợt ngay' (2h/10h, green shield). Wall drill suggested.</li><li>Lỗi 2: 'Mở vợt quá dài' (4h/8h, ball too deep) — Fix: 'Mở vợt ngắn, tiếp xúc phía trước'. Use wall as backstop.</li><li>Lỗi 3: 'Thụ động' (flat-footed) — Fix: 'Chủ động bước chân lên trước, chùng gối, dồn trọng tâm'.</li><li>Lỗi 4: 'Tập trung một bên' (racket only on weak side) — Fix: 'Luôn thủ vợt giữa người, đầu vợt ngang tầm mắt'.</li><li>Lỗi 5: 'Lắc & gỡ cổ tay' — Fix: 'Khóa cổ tay & dùng vai sau'. Anatomy callout.</li><li>Bottom-right: 3-step sequences for FH and BH volley — ① Mở vợt trước (2h/10h) → ② Tiếp xúc 90° → ③ Điểm dừng đột ngột.</li></ul>
+  </div>
+</section>
+
+
+<section class="page why-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 1  ·  VOLLEY+  ·  Sources</span>
+    </header>
+    <h3 class="block-h3">Practical Instructions <span class="vi-label">(Hướng Dẫn Thực Hành)</span></h3><p class="md-quote md-instruction">1. Mistake 1: Opening the racket too late. Fix: open the racket as soon as you see the ball's direction.</p><p class="md-quote md-instruction md-instruction-vi">1. Lỗi 1: Mở vợt quá trễ. Sửa: mở vợt ngay khi vừa thấy hướng bóng.</p><p class="md-quote md-instruction">2. Mistake 2: Backswing too long. Fix: short backswing, contact in front, push out.</p><p class="md-quote md-instruction md-instruction-vi">2. Lỗi 2: Backswing quá dài. Sửa: backswing ngắn, tiếp xúc phía trước, đẩy ra.</p><p class="md-quote md-instruction">3. Mistake 3: Passive net play. Fix: be the aggressor, move forward, take the ball early.</p><p class="md-quote md-instruction md-instruction-vi">3. Lỗi 3: Passive ở lưới. Sửa: là người chủ động, bước tới, đánh sớm.</p><p class="md-quote md-instruction">4. Mistake 4: Wrong grip. Fix: Continental for volley, no exceptions, switch quickly if needed.</p><p class="md-quote md-instruction md-instruction-vi">4. Lỗi 4: Grip sai. Sửa: Continental cho volley, không ngoại lệ, đổi nhanh nếu cần.</p><p class="md-quote md-instruction">5. Mistake 5: Flicking the wrist. Fix: hold the racket firm, push the ball with the body, not the wrist.</p><p class="md-quote md-instruction md-instruction-vi">5. Lỗi 5: Flick cổ tay. Sửa: cầm vợt chắc, đẩy bóng bằng thân, không bằng cổ tay.</p>
+  </div>
+</section>
+
+
+<section class="page image-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 2  ·  VOLLEY+  ·  Image &amp; Caption</span>
+    </header>
+    <div class="image-wrap">
+      <img src="file:///C:/Users/Henry/Pictures/My%20Notes/Gemini%20Vi/Gemini_Generated_Image_33e3o833e3o833e3.png" alt="Coil Styles: Side-Bend vs Straight-Body for Forehand Stance Choice" loading="eager">
+    </div>
+    <div class="image-caption-block">
+      <p class="card-title-en"><b>EN:</b> Coil Styles: Side-Bend vs Straight-Body for Forehand Stance Choice</p>
+      <p class="card-title-vi"><b>VI:</b> Hai Kiểu Cuộn Người (Coil): Side-Bend Mở vs Straight-Body Closed</p>
+      <p class="quality-line">Quality: 3/5 (gemini-vi sample, 2026-06-29) — marginal, see caveats (vision-QA, June 2026) ·
+        Path: <i>Gemini_Generated_Image_33e3o833e3o833e3.png</i></p>
+      <p class="caption-line">Two-column comparison: left = 'With side bend' (open stance, X-Factor, Out Reach, oblique stretch). Right = 'Without side bend' (closed stance, linear lunge, front reach, body straight). Stick figures front-view with arrows.</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="page cue-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 2  ·  VOLLEY+  ·  Cue &amp; Reading</span>
+    </header>
+    <p class="cue-label">CUE (EN)</p>
+    <blockquote class="cue-en">"Don't coil the same way every time. Open stance, rushed → side-bend + X-Factor (rotational whip). Closed stance, time to step in → straight body + linear lunge (clean weight transfer). Choose by situation, not habit."</blockquote>
+    <p class="cue-label">CUE (VI)</p>
+    <blockquote class="cue-vi">"Không phải lúc nào cũng cuộn người giống nhau. Open stance, vội, bóng bên hông → side-bend + X-Factor (xoay nhiều). Closed stance, có thời gian bước vào → straight body + linear lunge (truyền trọng lượng sạch). Chọn theo tình huống, không theo thói quen."</blockquote>
+    <h3 class="block-h3">What the diagram is saying</h3>
+    <ul class="block-bullets"><li>Left column 'With side bend' (open stance, rotational coil): Body tilts 30° laterally, hips/shoulders separate (X-Factor = 45°), arm reaches 'Out' (wide path), uses obliques + lats + spinal fascia for elastic energy. Best for: open stance, rushed shots, on-the-run balls.</li><li>Right column 'Without side bend' (closed stance, linear drive): Spine stays vertical, body straight, front leg lunge, arm reaches 'Forward' (chest-level contact). Power = mass × velocity (weight transfer). Best for: closed stance, time to step in, classic drives.</li><li>Trade-off left: more torque, lateral balance, needs core control. Risk: low-back stress if over-tilted without hip separation.</li><li>Trade-off right: simpler, stable for older knees, easier timing. Risk: less racquet-head speed if caught late.</li><li>Top-right 'VS' inset: elderly man with walker (rigid) vs young player (spring) — the metaphor: side-bend = spring; straight-body = brick wall.</li></ul>
+  </div>
+</section>
+
+
+<section class="page why-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 2  ·  VOLLEY+  ·  Sources</span>
+    </header>
+    <h3 class="block-h3">Practical Instructions <span class="vi-label">(Hướng Dẫn Thực Hành)</span></h3><p class="md-quote md-instruction">1. Linear drive = no side bend — straight body, less power, more control.</p><p class="md-quote md-instruction md-instruction-vi">1. Linear drive = không nghiêng bên — thân thẳng, ít lực, nhiều kiểm soát.</p><p class="md-quote md-instruction">2. Open stance + side bend = emergency power — use for wide balls, defensive gets.</p><p class="md-quote md-instruction md-instruction-vi">2. Open stance + nghiêng bên = lực khẩn cấp — dùng cho bóng rộng, defensive get.</p><p class="md-quote md-instruction">3. Side bend at the trunk, not the waist — keep the hips level, bend from the rib cage.</p><p class="md-quote md-instruction md-instruction-vi">3. Nghiêng bên ở thân, không ở eo — giữ hông ngang, nghiêng từ khung sườn.</p><p class="md-quote md-instruction">4. With side bend you have power. Without side bend you have a push.</p><p class="md-quote md-instruction md-instruction-vi">4. Có nghiêng bên thì có lực. Không nghiêng bên thì chỉ là đẩy.</p><p class="md-quote md-instruction">5. Match coil style to the situation: side bend for power, straight for control.</p><p class="md-quote md-instruction md-instruction-vi">5. Khớp kiểu xoắn với tình huống: nghiêng bên cho lực, thẳng cho kiểm soát.</p>
+  </div>
+</section>
+
+
+<section class="page summary-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">VOLLEY+  ·  Summary</span>
+    </header>
+    <h2 class="page-h2">3 takeaway cuối</h2>
+    <ol class="takeaway-list"><li>Volley lỗi #1: mở vợt trễ. Sửa bằng cách mở vợt NGAY khi đoán được hướng bóng — volley là tấn công, không phải chờ đợi. (Những lỗi thường gặp.md)</li><li>Volley lỗi #5: lắc/gỡ cổ tay. Sửa bằng cách KHÓA cổ tay + dùng vai sau. Cổ tay cố định ổn định, vai tạo lực. (Same source)</li><li>Forehand coil: KHÔNG có kiểu cuộn đúng mọi lúc. Open stance + vội → side-bend + X-Factor. Closed stance + có thời gian → straight body + linear lunge. Chọn theo tình huống. (Side bend vs straight body.md)</li></ol>
+    <h2 class="page-h2">Drills tham khảo (20-min practice)</h2>
+    <ol class="drill-list"><li>5 phút Wall volley no-backswing: đứng cách tường 3m, volley nhẹ chỉ với 15cm backswing. Target 20 FH + 20 BH liên tục, chỉ mặt vợt vuông góc.</li><li>5 phút Sửa 'lỗi mở vợt trễ': đứng sát lưới, đối phương (hoặc máy ném) bóng nhẹ — mở vợt 2h/10h NGAY khi thấy bóng rời vợt đối phương. Lặp lại 30 lần.</li><li>5 phút Step-in volley: tự ném bóng vào người, bước chân lên trước + volley. Tập cảm giác 'chủ động' thay vì 'chờ đợi'. 20 lần / bên.</li><li>5 phút Open stance coil: đứng ở baseline, đánh FH mở (open stance) với side-bend 30° rõ rệt + X-Factor 45°. Cảm nhận obliques căng. 20 lần.</li><li>5 phút Closed stance coil: đứng ở baseline, đánh FH closed với bước chân trước (lunge) + straight body. Cảm nhận trọng lượng chuyển tới. 20 lần.</li><li>5 phút Mix theo tình huống: tự ném bóng — bóng gần, bước tới (closed); bóng xa hoặc wide, side-bend mở. 30 lần.</li></ol>
+    <h3 class="block-h3">Special note</h3><p class="block-p">Hai thẻ này được thêm sau khi user quyết định hạ gate từ 4+/5 xuống 3+/5. Chất lượng 3/5 — nội dung đúng, VI text có một số typo/garble (xem caveats từng thẻ). Phù hợp làm tài liệu tham khảo nội bộ; nếu chia sẻ với học viên, nên proof-read VI trước.</p>
+  </div>
+</section>
+<section class="page end-page">
+  <div class="page-inner">
+    <h3 class="end-h3">End of VOLLEY+</h3>
+    <p class="end-line">Henry Pham · Visual Coaching Library · Pilot Series · June 2026</p>
+  </div>
+</section>
+
+    </div>
+  </div>
+</main>
+
+<footer class="bar">
+  Click page edge  ·  or use <kbd>←</kbd> <kbd>→</kbd> arrow keys  ·  <kbd>Home</kbd>/<kbd>End</kbd> jump  ·  <kbd>P</kbd> print
+</footer>
+
+<script>
+(function() {
+  const host = document.getElementById('page-host');
+  const strip = document.getElementById('strip');
+  const progressEl = document.getElementById('progress');
+  const stage = document.querySelector('main.stage');
+
+  // Move all .page children out of the host into the strip in order.
+  const pages = Array.from(host.querySelectorAll('.page'));
+  pages.forEach((p) => strip.appendChild(p));
+  host.remove();
+
+  const total = pages.length;
+  // We move by 2 pages per step (one "spread").
+  const totalSpreads = Math.ceil(total / 2);
+  let spread = 0;  // 0-indexed
+
+  // Compute viewport to horizontally center the current spread.
+  function recenter() {
+    const stageW = stage.clientWidth;
+    const pageW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--page-w'));
+    const visible = 2 * pageW;
+    // Strip is laid out with each page at x = i * pageW. The current
+    // spread spans [spread * visible, (spread+1) * visible] in strip coords.
+    // Its center sits at (spread + 0.5) * visible.
+    // We translateX so that point lands at stageW/2.
+    let translate = (stageW / 2) - (spread + 0.5) * visible;
+    // Clamp: don't allow positive translate (would expose empty space on left)
+    if (translate > 0) translate = 0;
+    // Don't allow the strip's right edge to go further left than stageW.
+    const stripTotalW = total * pageW;
+    const minTranslate = stageW - stripTotalW;
+    if (translate < minTranslate) translate = minTranslate;
+    strip.style.transform = `translateX(${translate}px)`;
+    const p1 = spread * 2 + 1;
+    const p2 = Math.min(spread * 2 + 2, total);
+    progressEl.textContent = `Spread ${spread + 1} of ${totalSpreads} (page ${p1}-${p2})`;
+  }
+
+  function flipNext() {
+    if (spread >= totalSpreads - 1) return;
+    spread++;
+    recenter();
+  }
+  function flipPrev() {
+    if (spread <= 0) return;
+    spread--;
+    recenter();
+  }
+  function jumpFirst() { spread = 0; recenter(); }
+  function jumpLast()  { spread = totalSpreads - 1; recenter(); }
+
+  document.getElementById('btn-prev').addEventListener('click', flipPrev);
+  document.getElementById('btn-next').addEventListener('click', flipNext);
+  document.getElementById('btn-start').addEventListener('click', jumpFirst);
+  document.getElementById('btn-end').addEventListener('click', jumpLast);
+  document.getElementById('btn-print').addEventListener('click', () => window.print());
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { flipNext(); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { flipPrev(); e.preventDefault(); }
+    else if (e.key === 'Home') { jumpFirst(); e.preventDefault(); }
+    else if (e.key === 'End') { jumpLast(); e.preventDefault(); }
+    else if (e.key.toLowerCase() === 'p') { window.print(); }
+  });
+
+  // Click on right edge of book flips forward; left edge flips back.
+  stage.addEventListener('click', (e) => {
+    const rect = stage.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    if (x > rect.width * 0.85) flipNext();
+    else if (x < rect.width * 0.15) flipPrev();
+  });
+
+  window.addEventListener('resize', recenter);
+  recenter();
+})();
+</script>
+
+</body>
+</html>

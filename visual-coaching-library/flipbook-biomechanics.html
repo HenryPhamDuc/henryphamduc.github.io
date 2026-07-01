@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Visual Coaching Library — BIOMECHANICS</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+/* ----------------------------------------------------------------
+   Visual Coaching Library — Flipbook CSS (2-page spread navigation)
+
+   Pages are arranged in a horizontal strip. The viewer shows two pages
+   at a time (one logical spread). Click/arrow keys translate the strip
+   by one column (two pages). Each click reveals two new pages.
+
+   No 3D transforms, no external deps — works in any browser.
+   ---------------------------------------------------------------- */
+:root {
+  --page-w: 720px;
+  --page-h: 880px;
+  --page-radius: 4px;
+  --bg: #1f2933;
+  --paper: #fcfaf6;
+  --ink: #1f2933;
+  --ink-soft: #495057;
+  --accent: #0F5132;
+  --accent-2: #198754;
+  --accent-blue: #0D6EFD;
+  --accent-orange: #C73E1D;
+  --rule: #c4b5a0;
+  --shadow: rgba(0,0,0,0.25);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); color: #ddd;
+  font-family: "Segoe UI", "DejaVu Sans", "Liberation Sans", Helvetica, Arial, sans-serif; }
+body { display: flex; flex-direction: column; overflow: hidden; }
+
+header.bar {
+  height: 50px; background: #0d1419; color: #ddd;
+  display: flex; align-items: center; padding: 0 16px;
+  border-bottom: 1px solid #2a343e; flex-shrink: 0;
+}
+header.bar h1 { font-size: 16px; margin: 0; flex-grow: 1; letter-spacing: 0.4px; }
+header.bar .nav-btn {
+  background: #2a343e; color: #ddd; border: 1px solid #3a4451;
+  padding: 6px 14px; margin-left: 8px; border-radius: 4px; cursor: pointer;
+  font-size: 13px;
+}
+header.bar .nav-btn:hover { background: #3a4451; }
+header.bar .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+header.bar .progress { margin-left: 16px; font-size: 12px; color: #98a4b3; min-width: 110px; }
+
+main.stage {
+  flex-grow: 1; display: block;  /* plain block; strip is positioned with translateX */
+  position: relative; overflow: hidden;
+}
+
+/* The viewport shows two .page side-by-side. We translate the strip
+   by increments of (2 * page-w) so each step moves two pages. */
+.strip {
+  display: flex;
+  align-items: stretch;
+  transition: transform 0.5s ease-in-out;
+  /* the strip itself is taller than viewport so vertical scroll inside is possible */
+}
+
+.page {
+  flex: 0 0 var(--page-w);
+  width: var(--page-w);
+  height: var(--page-h);
+  background: var(--paper);
+  color: var(--ink);
+  position: relative;
+  box-shadow: 0 8px 24px var(--shadow), inset 0 0 0 1px rgba(0,0,0,0.05);
+  overflow: hidden;
+  margin: 0;
+  /* Pair pages sit side-by-side: subtle inner shadow at spine */
+}
+.page + .page { border-left: 1px solid var(--rule); }
+
+.page-inner {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  padding: 28px 32px;
+  overflow-y: auto;
+}
+
+/* Typography */
+.page h1.cover-h1 { font-size: 36px; font-weight: 700; color: var(--accent); margin: 4px 0;
+  text-align: center; line-height: 1.15; }
+.page h2.page-h2 { font-size: 18px; font-weight: 700; color: var(--accent-2); margin: 4px 0 10px 0; }
+.page h3.block-h3 { font-size: 12px; font-weight: 700; color: var(--accent); margin: 12px 0 4px 0;
+  text-transform: uppercase; letter-spacing: 0.6px; }
+.page p, .page li { font-size: 13px; line-height: 1.55; color: var(--ink); }
+.page p { margin: 0 0 8px 0; }
+.page ul, .page ol { margin: 0 0 10px 18px; padding: 0 0 0 4px; }
+
+/* Cover-specific */
+.cover-page { background: linear-gradient(135deg, #fff 0%, #f5efe4 100%); }
+.cover-page .cover-tagline { font-size: 16px; color: var(--accent-2); text-align: center;
+  margin: 4px 0 12px 0; font-style: italic; }
+.cover-page .cover-icon { font-size: 14px; text-align: center; font-weight: 700;
+  letter-spacing: 3px; color: var(--ink-soft); background: #f1ebdc; padding: 4px 16px;
+  border-radius: 3px; width: max-content; margin: 6px auto 14px auto; display: block; }
+.cover-page .cover-meta { text-align: center; font-size: 13px; color: var(--ink-soft); margin: 6px 0; }
+.cover-page .cover-topics { list-style: none; padding: 0; margin: 10px auto 0 auto; max-width: 90%;
+  text-align: center; }
+.cover-page .cover-topics li { font-size: 13px; margin: 3px 0; color: var(--ink); }
+.cover-page .cover-foot { text-align: center; font-size: 11px; color: var(--ink-soft); margin: 4px 0; }
+.cover-page .cover-foot.small { font-size: 10px; }
+.cover-page .cover-intro p { font-size: 12.5px; line-height: 1.5; margin: 4px 0; }
+
+.index-page .page-index li { font-size: 12.5px; line-height: 1.55; color: var(--ink-soft);
+  margin: 6px 0; }
+
+.spacer-30 { height: 28px; }
+
+/* Divider page */
+.divider-page { background: linear-gradient(135deg, #fff 0%, #f5efe4 100%); }
+.divider-eyebrow { text-align: center; font-size: 10px; letter-spacing: 3px;
+  color: var(--ink-soft); margin-bottom: 30px; text-transform: uppercase; }
+.blank-page-divider .small-print { color: var(--ink-soft); font-size: 10px; font-style: italic; }
+
+/* Image page */
+.image-page .image-wrap {
+  width: 100%; height: 520px;
+  display: flex; align-items: center; justify-content: center;
+  background: #eee; border: 1px solid var(--rule); border-radius: 4px;
+  overflow: hidden; margin-bottom: 12px;
+}
+.image-page .image-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.image-page .card-title-en, .image-page .card-title-vi {
+  font-size: 13px; margin: 4px 0; line-height: 1.4;
+}
+.image-page .card-title-vi { color: var(--accent-orange); }
+.image-page .quality-line { font-size: 10.5px; color: var(--ink-soft); margin: 4px 0; }
+.image-page .caption-line { font-size: 12px; margin: 6px 0 0 0; line-height: 1.45; }
+
+.page-header { border-bottom: 1px solid var(--rule); padding-bottom: 6px; margin-bottom: 12px; }
+.page-label { font-size: 10px; color: var(--ink-soft); text-transform: uppercase;
+  letter-spacing: 1.2px; font-weight: 600; }
+
+/* Cue page */
+.cue-page .cue-label { font-size: 10px; color: var(--ink-soft); margin: 4px 0 2px 0;
+  text-transform: uppercase; font-weight: 700; letter-spacing: 1px; }
+.cue-page .cue-en, .cue-page .cue-vi {
+  margin: 0 0 8px 0; padding: 10px 14px; font-size: 13px; line-height: 1.5;
+  font-style: italic; border-radius: 4px; font-weight: 600;
+}
+.cue-page .cue-en { background: #E7F1FF; color: var(--accent-blue); border-left: 4px solid var(--accent-blue); }
+.cue-page .cue-vi { background: #FFF4E5; color: var(--accent-orange); border-left: 4px solid var(--accent-orange); }
+.cue-page .block-bullets li { font-size: 12.5px; line-height: 1.45; margin: 3px 0; }
+
+/* Why page */
+
+
+.why-page .md-quote { background: #F8F9FA; border-left: 4px solid #cbd5e1;
+  padding: 8px 12px; font-size: 12px; line-height: 1.5; color: var(--ink);
+  border-radius: 4px; margin: 5px 0; font-style: italic; }.why-page .md-instruction { background: #F0F9F4; border-left: 4px solid #5a8a5e; font-style: normal; font-size: 12.5px; line-height: 1.5; color: var(--ink); }.why-page .md-instruction-vi { background: #FFFAF0; border-left-color: #d4a574; color: #444; font-style: italic; }.why-page .vi-label { color: #666; font-size: 12px; font-weight: normal; font-style: italic; }
+
+/* Summary */
+.summary-page .takeaway-list, .summary-page .drill-list { padding-left: 20px; }
+.summary-page .takeaway-list li { font-size: 13px; line-height: 1.55; margin: 6px 0; color: var(--accent); }
+.summary-page .drill-list li { font-size: 12px; line-height: 1.5; margin: 3px 0;
+  border-left: 3px solid var(--accent-2); padding-left: 8px; }
+
+/* End page */
+.end-page { background: #f5efe4; text-align: center; padding: 60px 20px; }
+.end-h3 { font-size: 20px; color: var(--accent); }
+.end-line { font-size: 11px; color: var(--ink-soft); margin-top: 10px; }
+
+footer.bar {
+  height: 38px; background: #0d1419; color: #98a4b3;
+  display: flex; align-items: center; justify-content: center; padding: 0 16px;
+  font-size: 11px; border-top: 1px solid #2a343e; flex-shrink: 0;
+}
+footer.bar kbd { background: #2a343e; padding: 1px 6px; border-radius: 3px;
+  margin: 0 3px; font-family: ui-monospace, "Cascadia Code", monospace; font-size: 10px; }
+
+@media (max-width: 1500px) {
+  :root { --page-w: 560px; --page-h: 760px; }
+}
+@media (max-width: 1180px) {
+  :root { --page-w: 420px; --page-h: 600px; }
+}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <h1>Visual Coaching Library — BIOMECHANICS</h1>
+  <span class="progress" id="progress">Page 1 of 1</span>
+  <button class="nav-btn" id="btn-start">« First</button>
+  <button class="nav-btn" id="btn-prev">‹ Prev</button>
+  <button class="nav-btn" id="btn-next">Next ›</button>
+  <button class="nav-btn" id="btn-end">Last »</button>
+  <button class="nav-btn" id="btn-print">Print / Save PDF</button>
+</header>
+
+<main class="stage">
+  <div class="strip" id="strip">
+    <!-- Pages are populated by JS from the page-host below -->
+    <div class="page-host" id="page-host" style="display:none;">
+      
+<section class="page cover-page">
+  <div class="page-inner">
+    <h1 class="cover-h1">Visual Coaching Library</h1>
+    <p class="cover-tagline">Chain Reaction — Ground Up, Brain-Body Integration</p>
+    <div class="cover-icon">[BIOMECHANICS]</div>
+    <div class="spacer-30"></div>
+    <p class="cover-meta">5 cards  ·  master-coach-direct</p>
+    <div class="cover-intro"><p>Biomechanics trong tennis không phải về lực cơ — nó là chuỗi: chân → hông → vai → tay → vợt → bóng. Sổ tay của bạn nhấn mạnh GRF (Ground Reaction Force) → SSC (Stretch-Shorten Cycle) → core agentic.</p><p>Hai ảnh dưới đây: ball tracking (thần kinh thị giác + cơ chế cơ thể) và modern tennis mechanics overview (grip + kinetic chain + 4-stage serve).</p></div>
+    <div class="spacer-30"></div>
+    <p class="cover-foot">June 2026 — bilingual EN + VI<br>
+    Source: MD notes + Gemini-generated images</p>
+  </div>
+</section>
+<section class="page index-page">
+  <div class="page-inner">
+    <h2 class="page-h2">Index of Cards</h2>
+    <ol class="page-index">
+      <li>Ball Tracking: Biomechanics & Neural Processing  ·  quality: 4/5</li><li>The Mechanics of Modern Tennis (Overview)  ·  quality: 4/5</li><li>Tension integrity  ·  quality: 5/5</li><li>Serve - Controlled falling (kinetic chain)  ·  quality: 4/5</li><li>forehand 5-phase biomechanics (Dantian + frisbee analogy)  ·  quality: 4/5</li>
+    </ol>
+  </div>
+</section>
+
+
+<section class="page image-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 1  ·  BIOMECHANICS  ·  Image &amp; Caption</span>
+    </header>
+    <div class="image-wrap">
+      <img src="file:///C:/Users/Henry/Pictures/My%20Notes/Gemini/Gemini_Generated_Image_ms8jevms8jevms8j.png" alt="Ball Tracking: Biomechanics & Neural Processing" loading="eager">
+    </div>
+    <div class="image-caption-block">
+      <p class="card-title-en"><b>EN:</b> Ball Tracking: Biomechanics & Neural Processing</p>
+      <p class="card-title-vi"><b>VI:</b> Theo dõi bóng: Cơ sinh học & Xử lý thần kinh</p>
+      <p class="quality-line">Quality: 4/5 (vision-QA, June 2026) ·
+        Path: <i>Gemini_Generated_Image_ms8jevms8jevms8j.png</i></p>
+      <p class="caption-line">4-quadrant neuro-biomechanics: Postural Action, Visual Processing, Mechanism (Eyes→Brain→CNS), Synthesis. Bilingual VI+EN.</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="page cue-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 1  ·  BIOMECHANICS  ·  Cue &amp; Reading</span>
+    </header>
+    <p class="cue-label">CUE (EN)</p>
+    <blockquote class="cue-en">"Still head + relaxed muscles + fixed gaze = predictive tracking. Don't stare at the ball — let the gaze predict WHERE it will be."</blockquote>
+    <p class="cue-label">CUE (VI)</p>
+    <blockquote class="cue-vi">"Đầu yên + cơ thư giãn + gaze cố định = theo dõi dự đoán. Đừng nhìn chằm chằm vào bóng — để gaze dự đoán NƠI bóng sẽ đến."</blockquote>
+    <h3 class="block-h3">What the diagram is saying</h3>
+    <ul class="block-bullets"><li>Quadrant 1 — The Action: Postural cues (still head, relaxed muscles, fixed gaze vs physical gaze).</li><li>Quadrant 2 — Visual Processing Systems: VOR (Vestibulo-Ocular Reflex), cervical spine, inner ear.</li><li>Quadrant 3 — The Mechanism: Reprogramming flow Eyes → Brain → Central Nervous System.</li><li>Quadrant 4 — Synthesis: Gaze → Critical Moment → Data → Transcendent Ball Prediction.</li><li>Vietnamese caption: 'Thiết lập lại hệ thống quan sát bóng' (Re-establish the ball-observation system).</li></ul>
+  </div>
+</section>
+
+
+<section class="page why-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 1  ·  BIOMECHANICS  ·  Sources</span>
+    </header>
+    <h3 class="block-h3">Practical Instructions <span class="vi-label">(Hướng Dẫn Thực Hành)</span></h3><p class="md-quote md-instruction">1. Keep the head still, relax the muscles, fix the gaze on the ball through contact.</p><p class="md-quote md-instruction md-instruction-vi">1. Giữ đầu yên, thả lỏng cơ, cố định ánh mắt trên bóng qua tiếp xúc.</p><p class="md-quote md-instruction">2. Use the VOR (Vestibulo-Ocular Reflex) — let the cervical spine and inner ear stabilize the gaze.</p><p class="md-quote md-instruction md-instruction-vi">2. Dùng VOR (Vestibulo-Ocular Reflex) — để cổ và tai trong ổn định ánh mắt.</p><p class="md-quote md-instruction">3. Reprogram the Eyes → Brain → Central Nervous System flow with consistent practice.</p><p class="md-quote md-instruction md-instruction-vi">3. Lập trình lại dòng Mắt → Não → Hệ Thần Kinh Trung Ương với tập nhất quán.</p><p class="md-quote md-instruction">4. Gaze → Critical Moment → Data → Transcendent Ball Prediction — feel the ball, don't think.</p><p class="md-quote md-instruction md-instruction-vi">4. Gaze → Khoảnh Khắc Quan Trọng → Dữ Liệu → Dự Đoán Bóng Siêu Việt — cảm bóng, đừng nghĩ.</p><p class="md-quote md-instruction">5. Re-establish the ball-observation system daily: 5 minutes of focused tracking before play.</p><p class="md-quote md-instruction md-instruction-vi">5. Tái lập hệ quan sát bóng hàng ngày: 5 phút tập trung theo dõi trước khi chơi.</p>
+  </div>
+</section>
+
+
+<section class="page image-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 2  ·  BIOMECHANICS  ·  Image &amp; Caption</span>
+    </header>
+    <div class="image-wrap">
+      <img src="file:///C:/Users/Henry/Pictures/My%20Notes/Gemini/The%20Mechanics%20of%20Modern%20Tennis.png" alt="The Mechanics of Modern Tennis (Overview)" loading="eager">
+    </div>
+    <div class="image-caption-block">
+      <p class="card-title-en"><b>EN:</b> The Mechanics of Modern Tennis (Overview)</p>
+      <p class="card-title-vi"><b>VI:</b> Cơ học Tennis Hiện đại (Tổng quan)</p>
+      <p class="quality-line">Quality: 4/5 (vision-QA, June 2026) ·
+        Path: <i>The Mechanics of Modern Tennis.png</i></p>
+      <p class="caption-line">Comprehensive multi-panel overview: 4 grip types, kinetic chain, 4-stage serve model, speed benchmarks (Zverev 136/132 MPH, Martinez 129 MPH).</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="page cue-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 2  ·  BIOMECHANICS  ·  Cue &amp; Reading</span>
+    </header>
+    <p class="cue-label">CUE (EN)</p>
+    <blockquote class="cue-en">"95% of tennis power comes from the ground, not the arm. The arm is the last link. The body is the engine."</blockquote>
+    <p class="cue-label">CUE (VI)</p>
+    <blockquote class="cue-vi">"95% lực tennis đến từ mặt đất, không phải tay. Tay là khâu cuối. Cơ thể mới là động cơ."</blockquote>
+    <h3 class="block-h3">What the diagram is saying</h3>
+    <ul class="block-bullets"><li>Section 1 — 4 Grip Types: Continental, Eastern, Semi-Western, Western with court impact zones.</li><li>Section 2 — Kinetic Chain: 95% of energy from ground reaction force, flowing up through legs → core → arm.</li><li>Section 3 — 4-Stage Serve: Trigger → Trophy → Acceleration → Contact.</li><li>Section 4 — Speed Benchmarks: Zverev FH 136 MPH, BH 132 MPH; Martinez 129 MPH.</li><li>Section 5 — Stretch-Shortening Cycle: energy storage in core/hips/hamstrings.</li></ul>
+  </div>
+</section>
+
+
+<section class="page why-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 2  ·  BIOMECHANICS  ·  Sources</span>
+    </header>
+    <h3 class="block-h3">Practical Instructions <span class="vi-label">(Hướng Dẫn Thực Hành)</span></h3><p class="md-quote md-instruction">1. Tennis is played on a 2D court but won in 3D space — think of the body as a 3D chain.</p><p class="md-quote md-instruction md-instruction-vi">1. Tennis chơi trên sân 2D nhưng thắng trong không gian 3D — nghĩ cơ thể là chuỗi 3D.</p><p class="md-quote md-instruction">2. GRF (Ground Reaction Force) flows from the ground up: feet → legs → hips → torso → arms → racket.</p><p class="md-quote md-instruction md-instruction-vi">2. GRF (Lực Phản Ứng Mặt Đất) chảy từ đất lên: chân → đùi → hông → thân → tay → vợt.</p><p class="md-quote md-instruction">3. SSC (Stretch-Shorten Cycle) — the body stores elastic energy in the load phase, releases in the swing.</p><p class="md-quote md-instruction md-instruction-vi">3. SSC (Chu Trình Kéo-Ngắn) — cơ thể tích năng lượng đàn hồi khi nạp, giải phóng khi vung.</p><p class="md-quote md-instruction">4. Core is the agentic hub — every segment rotation passes through the trunk.</p><p class="md-quote md-instruction md-instruction-vi">4. Core là hub agentic — mọi xoay phân đoạn đều đi qua thân.</p><p class="md-quote md-instruction">5. Modern tennis is embodied tennis: connect every segment, do not isolate parts.</p><p class="md-quote md-instruction md-instruction-vi">5. Tennis hiện đại là tennis nhập thể: kết nối mọi phân đoạn, không cô lập phần.</p>
+  </div>
+</section>
+
+
+<section class="page image-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 3  ·  BIOMECHANICS  ·  Image &amp; Caption</span>
+    </header>
+    <div class="image-wrap">
+      <img src="file:///C:/Users/Henry/Pictures/My%20Notes/Gemini/Gemini_Generated_Image_3uw72p3uw72p3uw7.png" alt="Tension integrity" loading="eager">
+    </div>
+    <div class="image-caption-block">
+      <p class="card-title-en"><b>EN:</b> Tension integrity</p>
+      
+      <p class="quality-line">Quality: 5/5 (vision-QA, June 2026) ·
+        Path: <i>Gemini_Generated_Image_3uw72p3uw72p3uw7.png</i></p>
+      <p class="caption-line">Tension integrity / kinetic chain</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="page cue-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 3  ·  BIOMECHANICS  ·  Cue &amp; Reading</span>
+    </header>
+    <p class="cue-label">CUE (EN)</p>
+    <blockquote class="cue-en">"Master-coach focus: Tension integrity / kinetic chain"</blockquote>
+    <p class="cue-label">CUE (VI)</p>
+    <blockquote class="cue-vi">""</blockquote>
+    <h3 class="block-h3">What the diagram is saying</h3>
+    <ul class="block-bullets"><li>Diagrammatic illustration: Tension integrity / kinetic chain</li></ul>
+  </div>
+</section>
+
+
+<section class="page why-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 3  ·  BIOMECHANICS  ·  Sources</span>
+    </header>
+    <h3 class="block-h3">Practical Instructions <span class="vi-label">(Hướng Dẫn Thực Hành)</span></h3><p class="md-quote md-instruction">1. Tension is the engine, not the enemy — connected tension is ready tension.</p><p class="md-quote md-instruction md-instruction-vi">1. Căng là động cơ, không phải kẻ thù — căng kết nối là căng sẵn sàng.</p><p class="md-quote md-instruction">2. Load before launch: store elastic energy in the body before initiating the swing.</p><p class="md-quote md-instruction md-instruction-vi">2. Nạp trước khi phóng: tích năng lượng đàn hồi trong cơ thể trước khi bắt đầu vung.</p><p class="md-quote md-instruction">3. Core = the tension hub — every other segment receives from the trunk.</p><p class="md-quote md-instruction md-instruction-vi">3. Core = hub căng — mọi phân đoạn khác nhận từ thân.</p><p class="md-quote md-instruction">4. Do not collapse between shots — maintain connected tension throughout the rally.</p><p class="md-quote md-instruction md-instruction-vi">4. Đừng xẹp giữa các cú — duy trì căng kết nối suốt rally.</p><p class="md-quote md-instruction">5. Release at contact, reload immediately — tension is dynamic, not static.</p><p class="md-quote md-instruction md-instruction-vi">5. Giải phóng ở tiếp xúc, nạp lại ngay — căng là động, không phải tĩnh.</p></div>
+</section>
+
+
+<section class="page image-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 4  ·  BIOMECHANICS  ·  Image &amp; Caption</span>
+    </header>
+    <div class="image-wrap">
+      <img src="file:///C:/Users/Henry/Pictures/My%20Notes/Gemini/Gemini_Generated_Image_dsudzfdsudzfdsud.png" alt="Serve - Controlled falling (kinetic chain)" loading="eager">
+    </div>
+    <div class="image-caption-block">
+      <p class="card-title-en"><b>EN:</b> Serve - Controlled falling (kinetic chain)</p>
+      
+      <p class="quality-line">Quality: 4/5 (vision-QA, June 2026) ·
+        Path: <i>Gemini_Generated_Image_dsudzfdsudzfdsud.png</i></p>
+      <p class="caption-line">Serve - Controlled falling (kinetic chain)</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="page cue-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 4  ·  BIOMECHANICS  ·  Cue &amp; Reading</span>
+    </header>
+    <p class="cue-label">CUE (EN)</p>
+    <blockquote class="cue-en">"Master-coach focus: Serve - Controlled falling (kinetic chain)"</blockquote>
+    <p class="cue-label">CUE (VI)</p>
+    <blockquote class="cue-vi">""</blockquote>
+    <h3 class="block-h3">What the diagram is saying</h3>
+    <ul class="block-bullets"><li>Diagrammatic illustration: Serve - Controlled falling (kinetic chain)</li></ul>
+  </div>
+</section>
+
+
+<section class="page why-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 4  ·  BIOMECHANICS  ·  Sources</span>
+    </header>
+    <h3 class="block-h3">Practical Instructions <span class="vi-label">(Hướng Dẫn Thực Hành)</span></h3><p class="md-quote md-instruction">1. Drop into the slot — do not reach for the ball, let the racket pull the chest down.</p><p class="md-quote md-instruction md-instruction-vi">1. Rơi vào slot — đừng với lấy bóng, để vợt kéo ngực xuống.</p><p class="md-quote md-instruction">2. Catch the racket at the bottom of the fall — the weight pulls the arm into pronation.</p><p class="md-quote md-instruction md-instruction-vi">2. Bắt vợt ở đáy cú rơi — sức nặng kéo tay vào pronation.</p><p class="md-quote md-instruction">3. The fall is where energy lives — heavy weight, gravity, free acceleration.</p><p class="md-quote md-instruction md-instruction-vi">3. Cú rơi là nơi năng lượng sống — nặng, trọng lực, tăng tốc tự do.</p><p class="md-quote md-instruction">4. Chest compression at the bottom of the slot — torso is fully engaged.</p><p class="md-quote md-instruction md-instruction-vi">4. Nén ngực ở đáy slot — thân đã gài hoàn toàn.</p><p class="md-quote md-instruction">5. Then extend up: legs drive, hip opens, shoulder whips, racket head accelerates into ball.</p><p class="md-quote md-instruction md-instruction-vi">5. Rồi duỗi lên: chân đẩy, hông mở, vai quất, đầu vợt tăng tốc vào bóng.</p></div>
+</section>
+
+
+<section class="page image-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 5  ·  BIOMECHANICS  ·  Image &amp; Caption</span>
+    </header>
+    <div class="image-wrap">
+      <img src="file:///C:/Users/Henry/Pictures/My%20Notes/Gemini%20Vi/Gemini_Generated_Image_o7bvt6o7bvt6o7bv.png" alt="forehand 5-phase biomechanics (Dantian + frisbee analogy)" loading="eager">
+    </div>
+    <div class="image-caption-block">
+      <p class="card-title-en"><b>EN:</b> forehand 5-phase biomechanics (Dantian + frisbee analogy)</p>
+      
+      <p class="quality-line">Quality: 4/5 (vision-QA, June 2026) ·
+        Path: <i>Gemini_Generated_Image_o7bvt6o7bvt6o7bv.png</i></p>
+      <p class="caption-line">forehand 5-phase biomechanics (Dantian + frisbee analogy)</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="page cue-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 5  ·  BIOMECHANICS  ·  Cue &amp; Reading</span>
+    </header>
+    <p class="cue-label">CUE (EN)</p>
+    <blockquote class="cue-en">"Master-coach focus: forehand 5-phase biomechanics (Dantian + frisbee analogy)"</blockquote>
+    <p class="cue-label">CUE (VI)</p>
+    <blockquote class="cue-vi">""</blockquote>
+    <h3 class="block-h3">What the diagram is saying</h3>
+    <ul class="block-bullets"><li>Diagrammatic illustration: forehand 5-phase biomechanics (Dantian + frisbee analogy)</li></ul>
+  </div>
+</section>
+
+
+<section class="page why-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 5  ·  BIOMECHANICS  ·  Sources</span>
+    </header>
+    <h3 class="block-h3">Practical Instructions <span class="vi-label">(Hướng Dẫn Thực Hành)</span></h3><p class="md-quote md-instruction">1. Phase 1 — Prepare: racket up, weight loaded to back leg, eyes on the ball.</p><p class="md-quote md-instruction md-instruction-vi">1. Pha 1 — Chuẩn bị: vợt lên, trọng lượng nạp chân sau, mắt theo bóng.</p><p class="md-quote md-instruction">2. Phase 2 — Load: coil the torso, drop the racket into the slot, hip stores energy.</p><p class="md-quote md-instruction md-instruction-vi">2. Pha 2 — Nạp: xoắn thân, thả vợt vào slot, hông tích năng lượng.</p><p class="md-quote md-instruction">3. Phase 3 — Launch: hip opens, chest turns, shoulder whips, arm extends.</p><p class="md-quote md-instruction md-instruction-vi">3. Pha 3 — Phóng: hông mở, ngực xoay, vai quất, tay duỗi.</p><p class="md-quote md-instruction">4. Phase 4 — Contact: meet the ball out in front, racket face vertical, weight transfers forward.</p><p class="md-quote md-instruction md-instruction-vi">4. Pha 4 — Tiếp xúc: gặp bóng phía trước, mặt vợt dọc, trọng lượng chuyển tới.</p><p class="md-quote md-instruction">5. Phase 5 — Recover: wrap around the shoulder, cross-step back to the ready position.</p><p class="md-quote md-instruction md-instruction-vi">5. Pha 5 — Hồi phục: vòng qua vai, bước chéo về tư thế sẵn sàng.</p></div>
+</section>
+
+
+<section class="page summary-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">BIOMECHANICS  ·  Summary</span>
+    </header>
+    <h2 class="page-h2">3 takeaway cuối</h2>
+    <ol class="takeaway-list"><li>(1) 95% lực từ mặt đất, không phải tay. Cơ thể là động cơ, tay là khâu cuối của chuỗi lực.</li><li>(2) Core = agentic. Core không chỉ 'đọc' bóng, mà còn 'hành động' — xoay, đẩy, redirect.</li><li>(3) Gaze cố định + đầu yên = theo dõi dự đoán. Đừng nhìn chằm chằm — hãy để gaze dự đoán nơi bóng đến.</li></ol>
+    <h2 class="page-h2">Drills tham khảo (20-min practice)</h2>
+    <ol class="drill-list"><li>5 phút Gaze drill: đứng tường, tung bóng từ, mắt NHÌN VÀO TƯỜNG (không phải bóng) cho đến khi bóng chạm.</li><li>5 phút Shadow với chain awareness: mỗi cú, nói to 'leg → hip → shoulder → arm'. 20 lần.</li><li>5 phút Ground force drill: nhảy xuống rồi bật lên đánh forehand. Cảm nhận GRF đi từ chân lên tay.</li><li>5 phút Wall rally với closed eyes: đếm 5 quả trước khi mở mắt. Tập proprioception.</li></ol>
+    
+  </div>
+</section>
+<section class="page end-page">
+  <div class="page-inner">
+    <h3 class="end-h3">End of BIOMECHANICS</h3>
+    <p class="end-line">Henry Pham · Visual Coaching Library · Pilot Series · June 2026</p>
+  </div>
+</section>
+
+    </div>
+  </div>
+</main>
+
+<footer class="bar">
+  Click page edge  ·  or use <kbd>←</kbd> <kbd>→</kbd> arrow keys  ·  <kbd>Home</kbd>/<kbd>End</kbd> jump  ·  <kbd>P</kbd> print
+</footer>
+
+<script>
+(function() {
+  const host = document.getElementById('page-host');
+  const strip = document.getElementById('strip');
+  const progressEl = document.getElementById('progress');
+  const stage = document.querySelector('main.stage');
+
+  // Move all .page children out of the host into the strip in order.
+  const pages = Array.from(host.querySelectorAll('.page'));
+  pages.forEach((p) => strip.appendChild(p));
+  host.remove();
+
+  const total = pages.length;
+  // We move by 2 pages per step (one "spread").
+  const totalSpreads = Math.ceil(total / 2);
+  let spread = 0;  // 0-indexed
+
+  // Compute viewport to horizontally center the current spread.
+  function recenter() {
+    const stageW = stage.clientWidth;
+    const pageW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--page-w'));
+    const visible = 2 * pageW;
+    // Strip is laid out with each page at x = i * pageW. The current
+    // spread spans [spread * visible, (spread+1) * visible] in strip coords.
+    // Its center sits at (spread + 0.5) * visible.
+    // We translateX so that point lands at stageW/2.
+    let translate = (stageW / 2) - (spread + 0.5) * visible;
+    // Clamp: don't allow positive translate (would expose empty space on left)
+    if (translate > 0) translate = 0;
+    // Don't allow the strip's right edge to go further left than stageW.
+    const stripTotalW = total * pageW;
+    const minTranslate = stageW - stripTotalW;
+    if (translate < minTranslate) translate = minTranslate;
+    strip.style.transform = `translateX(${translate}px)`;
+    const p1 = spread * 2 + 1;
+    const p2 = Math.min(spread * 2 + 2, total);
+    progressEl.textContent = `Spread ${spread + 1} of ${totalSpreads} (page ${p1}-${p2})`;
+  }
+
+  function flipNext() {
+    if (spread >= totalSpreads - 1) return;
+    spread++;
+    recenter();
+  }
+  function flipPrev() {
+    if (spread <= 0) return;
+    spread--;
+    recenter();
+  }
+  function jumpFirst() { spread = 0; recenter(); }
+  function jumpLast()  { spread = totalSpreads - 1; recenter(); }
+
+  document.getElementById('btn-prev').addEventListener('click', flipPrev);
+  document.getElementById('btn-next').addEventListener('click', flipNext);
+  document.getElementById('btn-start').addEventListener('click', jumpFirst);
+  document.getElementById('btn-end').addEventListener('click', jumpLast);
+  document.getElementById('btn-print').addEventListener('click', () => window.print());
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { flipNext(); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { flipPrev(); e.preventDefault(); }
+    else if (e.key === 'Home') { jumpFirst(); e.preventDefault(); }
+    else if (e.key === 'End') { jumpLast(); e.preventDefault(); }
+    else if (e.key.toLowerCase() === 'p') { window.print(); }
+  });
+
+  // Click on right edge of book flips forward; left edge flips back.
+  stage.addEventListener('click', (e) => {
+    const rect = stage.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    if (x > rect.width * 0.85) flipNext();
+    else if (x < rect.width * 0.15) flipPrev();
+  });
+
+  window.addEventListener('resize', recenter);
+  recenter();
+})();
+</script>
+
+</body>
+</html>

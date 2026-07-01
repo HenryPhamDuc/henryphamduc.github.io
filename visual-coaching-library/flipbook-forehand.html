@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Visual Coaching Library — FOREHAND</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+/* ----------------------------------------------------------------
+   Visual Coaching Library — Flipbook CSS (2-page spread navigation)
+
+   Pages are arranged in a horizontal strip. The viewer shows two pages
+   at a time (one logical spread). Click/arrow keys translate the strip
+   by one column (two pages). Each click reveals two new pages.
+
+   No 3D transforms, no external deps — works in any browser.
+   ---------------------------------------------------------------- */
+:root {
+  --page-w: 720px;
+  --page-h: 880px;
+  --page-radius: 4px;
+  --bg: #1f2933;
+  --paper: #fcfaf6;
+  --ink: #1f2933;
+  --ink-soft: #495057;
+  --accent: #0F5132;
+  --accent-2: #198754;
+  --accent-blue: #0D6EFD;
+  --accent-orange: #C73E1D;
+  --rule: #c4b5a0;
+  --shadow: rgba(0,0,0,0.25);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); color: #ddd;
+  font-family: "Segoe UI", "DejaVu Sans", "Liberation Sans", Helvetica, Arial, sans-serif; }
+body { display: flex; flex-direction: column; overflow: hidden; }
+
+header.bar {
+  height: 50px; background: #0d1419; color: #ddd;
+  display: flex; align-items: center; padding: 0 16px;
+  border-bottom: 1px solid #2a343e; flex-shrink: 0;
+}
+header.bar h1 { font-size: 16px; margin: 0; flex-grow: 1; letter-spacing: 0.4px; }
+header.bar .nav-btn {
+  background: #2a343e; color: #ddd; border: 1px solid #3a4451;
+  padding: 6px 14px; margin-left: 8px; border-radius: 4px; cursor: pointer;
+  font-size: 13px;
+}
+header.bar .nav-btn:hover { background: #3a4451; }
+header.bar .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+header.bar .progress { margin-left: 16px; font-size: 12px; color: #98a4b3; min-width: 110px; }
+
+main.stage {
+  flex-grow: 1; display: block;  /* plain block; strip is positioned with translateX */
+  position: relative; overflow: hidden;
+}
+
+/* The viewport shows two .page side-by-side. We translate the strip
+   by increments of (2 * page-w) so each step moves two pages. */
+.strip {
+  display: flex;
+  align-items: stretch;
+  transition: transform 0.5s ease-in-out;
+  /* the strip itself is taller than viewport so vertical scroll inside is possible */
+}
+
+.page {
+  flex: 0 0 var(--page-w);
+  width: var(--page-w);
+  height: var(--page-h);
+  background: var(--paper);
+  color: var(--ink);
+  position: relative;
+  box-shadow: 0 8px 24px var(--shadow), inset 0 0 0 1px rgba(0,0,0,0.05);
+  overflow: hidden;
+  margin: 0;
+  /* Pair pages sit side-by-side: subtle inner shadow at spine */
+}
+.page + .page { border-left: 1px solid var(--rule); }
+
+.page-inner {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  padding: 28px 32px;
+  overflow-y: auto;
+}
+
+/* Typography */
+.page h1.cover-h1 { font-size: 36px; font-weight: 700; color: var(--accent); margin: 4px 0;
+  text-align: center; line-height: 1.15; }
+.page h2.page-h2 { font-size: 18px; font-weight: 700; color: var(--accent-2); margin: 4px 0 10px 0; }
+.page h3.block-h3 { font-size: 12px; font-weight: 700; color: var(--accent); margin: 12px 0 4px 0;
+  text-transform: uppercase; letter-spacing: 0.6px; }
+.page p, .page li { font-size: 13px; line-height: 1.55; color: var(--ink); }
+.page p { margin: 0 0 8px 0; }
+.page ul, .page ol { margin: 0 0 10px 18px; padding: 0 0 0 4px; }
+
+/* Cover-specific */
+.cover-page { background: linear-gradient(135deg, #fff 0%, #f5efe4 100%); }
+.cover-page .cover-tagline { font-size: 16px; color: var(--accent-2); text-align: center;
+  margin: 4px 0 12px 0; font-style: italic; }
+.cover-page .cover-icon { font-size: 14px; text-align: center; font-weight: 700;
+  letter-spacing: 3px; color: var(--ink-soft); background: #f1ebdc; padding: 4px 16px;
+  border-radius: 3px; width: max-content; margin: 6px auto 14px auto; display: block; }
+.cover-page .cover-meta { text-align: center; font-size: 13px; color: var(--ink-soft); margin: 6px 0; }
+.cover-page .cover-topics { list-style: none; padding: 0; margin: 10px auto 0 auto; max-width: 90%;
+  text-align: center; }
+.cover-page .cover-topics li { font-size: 13px; margin: 3px 0; color: var(--ink); }
+.cover-page .cover-foot { text-align: center; font-size: 11px; color: var(--ink-soft); margin: 4px 0; }
+.cover-page .cover-foot.small { font-size: 10px; }
+.cover-page .cover-intro p { font-size: 12.5px; line-height: 1.5; margin: 4px 0; }
+
+.index-page .page-index li { font-size: 12.5px; line-height: 1.55; color: var(--ink-soft);
+  margin: 6px 0; }
+
+.spacer-30 { height: 28px; }
+
+/* Divider page */
+.divider-page { background: linear-gradient(135deg, #fff 0%, #f5efe4 100%); }
+.divider-eyebrow { text-align: center; font-size: 10px; letter-spacing: 3px;
+  color: var(--ink-soft); margin-bottom: 30px; text-transform: uppercase; }
+.blank-page-divider .small-print { color: var(--ink-soft); font-size: 10px; font-style: italic; }
+.verso-hero {
+  max-width: 80%;
+  max-height: 70vh;
+  object-fit: contain;
+  margin: 0 auto 20px;
+  display: block;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Image page */
+.image-page .image-wrap {
+  width: 100%; height: 520px;
+  display: flex; align-items: center; justify-content: center;
+  background: #eee; border: 1px solid var(--rule); border-radius: 4px;
+  overflow: hidden; margin-bottom: 12px;
+}
+.image-page .image-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.image-page .card-title-en, .image-page .card-title-vi {
+  font-size: 13px; margin: 4px 0; line-height: 1.4;
+}
+.image-page .card-title-vi { color: var(--accent-orange); }
+.image-page .quality-line { font-size: 10.5px; color: var(--ink-soft); margin: 4px 0; }
+.image-page .caption-line { font-size: 12px; margin: 6px 0 0 0; line-height: 1.45; }
+
+.page-header { border-bottom: 1px solid var(--rule); padding-bottom: 6px; margin-bottom: 12px; }
+.page-label { font-size: 10px; color: var(--ink-soft); text-transform: uppercase;
+  letter-spacing: 1.2px; font-weight: 600; }
+
+/* Cue page */
+.cue-page .cue-label { font-size: 10px; color: var(--ink-soft); margin: 4px 0 2px 0;
+  text-transform: uppercase; font-weight: 700; letter-spacing: 1px; }
+.cue-page .cue-en, .cue-page .cue-vi {
+  margin: 0 0 8px 0; padding: 10px 14px; font-size: 13px; line-height: 1.5;
+  font-style: italic; border-radius: 4px; font-weight: 600;
+}
+.cue-page .cue-en { background: #E7F1FF; color: var(--accent-blue); border-left: 4px solid var(--accent-blue); }
+.cue-page .cue-vi { background: #FFF4E5; color: var(--accent-orange); border-left: 4px solid var(--accent-orange); }
+.cue-page .block-bullets li { font-size: 12.5px; line-height: 1.45; margin: 3px 0; }
+
+/* Why page */
+
+
+.why-page .md-quote { background: #F8F9FA; border-left: 4px solid #cbd5e1;
+  padding: 8px 12px; font-size: 12px; line-height: 1.5; color: var(--ink);
+  border-radius: 4px; margin: 5px 0; font-style: italic; }.why-page .md-instruction { background: #F0F9F4; border-left: 4px solid #5a8a5e; font-style: normal; font-size: 12.5px; line-height: 1.5; color: var(--ink); }.why-page .md-instruction-vi { background: #FFFAF0; border-left-color: #d4a574; color: #444; font-style: italic; }.why-page .vi-label { color: #666; font-size: 12px; font-weight: normal; font-style: italic; }
+
+/* Summary */
+.summary-page .takeaway-list, .summary-page .drill-list { padding-left: 20px; }
+.summary-page .takeaway-list li { font-size: 13px; line-height: 1.55; margin: 6px 0; color: var(--accent); }
+.summary-page .drill-list li { font-size: 12px; line-height: 1.5; margin: 3px 0;
+  border-left: 3px solid var(--accent-2); padding-left: 8px; }
+
+/* End page */
+.end-page { background: #f5efe4; text-align: center; padding: 60px 20px; }
+.end-h3 { font-size: 20px; color: var(--accent); }
+.end-line { font-size: 11px; color: var(--ink-soft); margin-top: 10px; }
+
+footer.bar {
+  height: 38px; background: #0d1419; color: #98a4b3;
+  display: flex; align-items: center; justify-content: center; padding: 0 16px;
+  font-size: 11px; border-top: 1px solid #2a343e; flex-shrink: 0;
+}
+footer.bar kbd { background: #2a343e; padding: 1px 6px; border-radius: 3px;
+  margin: 0 3px; font-family: ui-monospace, "Cascadia Code", monospace; font-size: 10px; }
+
+@media (max-width: 1500px) {
+  :root { --page-w: 560px; --page-h: 760px; }
+}
+@media (max-width: 1180px) {
+  :root { --page-w: 420px; --page-h: 600px; }
+}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <h1>Visual Coaching Library — FOREHAND</h1>
+  <span class="progress" id="progress">Page 1 of 1</span>
+  <button class="nav-btn" id="btn-start">« First</button>
+  <button class="nav-btn" id="btn-prev">‹ Prev</button>
+  <button class="nav-btn" id="btn-next">Next ›</button>
+  <button class="nav-btn" id="btn-end">Last »</button>
+  <button class="nav-btn" id="btn-print">Print / Save PDF</button>
+</header>
+
+<main class="stage">
+  <div class="strip" id="strip">
+    <!-- Pages are populated by JS from the page-host below -->
+    <div class="page-host" id="page-host" style="display:none;">
+      
+<section class="page cover-page">
+  <div class="page-inner">
+    <h1 class="cover-h1">Visual Coaching Library</h1>
+    <p class="cover-tagline">The Anatomy of the Modern Forehand</p>
+    <div class="cover-icon">[FOREHAND]</div>
+    <div class="spacer-30"></div>
+    <p class="cover-meta">7 cards  ·  master-coach-direct</p>
+    <div class="cover-intro"><p>Forehand là cú đánh thuận tay, nơi mà 90% người chơi nghiệp dư vẫn nghĩ 'đánh bằng tay'. Sổ tay của bạn cho thấy một lập luật khác: internal rotation, GRF → SSC, agentic core. Cánh tay chỉ là hành khách.</p><p>Ba ảnh dưới đây được chọn vì chúng minh hoạ một chuỗi (sequence), không phải một cú đánh: anatomy → foundation (stance) → compact execution.</p></div>
+    <div class="spacer-30"></div>
+    <p class="cover-foot">June 2026 — bilingual EN + VI<br>
+    Source: MD notes + Gemini-generated images</p>
+  </div>
+</section>
+<section class="page index-page">
+  <div class="page-inner">
+    <h2 class="page-h2">Index of Cards</h2>
+    <ol class="page-index">
+      <li>The Anatomy of the Modern Forehand  ·  quality: 4/5</li><li>Foot Configuration — The Foundation of Every Groundstroke  ·  quality: 4/5</li><li>How to Create a Big Shot With a Compact Stroke  ·  quality: 3/5</li><li>Forehand radius collection & acceleration  ·  quality: 4/5</li><li>Forehand wrist supination/pronation  ·  quality: 4/5</li><li>Ball contact path — flat vs topspin  ·  quality: 4/5</li><li>Sling-shot Grip  ·  quality: 4/5</li>
+    </ol>
+  </div>
+</section>
+
+
+<section class="page image-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 1  ·  FOREHAND  ·  Image &amp; Caption</span>
+    </header>
+    <div class="image-wrap">
+      <img src="file:///C:/Users/Henry/Pictures/My%20Notes/Gemini/Infographics-Foerhand.png" alt="The Anatomy of the Modern Forehand" loading="eager">
+    </div>
+    <div class="image-caption-block">
+      <p class="card-title-en"><b>EN:</b> The Anatomy of the Modern Forehand</p>
+      <p class="card-title-vi"><b>VI:</b> Giải phẫu cú Forehand Hiện đại</p>
+      <p class="quality-line">Quality: 4/5 (vision-QA, June 2026) ·
+        Path: <i>Infographics-Foerhand.png</i></p>
+      <p class="caption-line">Modern forehand anatomy: leg drive → hip rotation → hitting hand, with internal rotation doing 40% of segment-movement contribution.</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="page cue-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 1  ·  FOREHAND  ·  Cue &amp; Reading</span>
+    </header>
+    <p class="cue-label">CUE (EN)</p>
+    <blockquote class="cue-en">"1. Leg drive starts the chain
+2. Hips rotate before shoulders
+3. Internal rotation does 40% of the work
+4. The arm is a passenger
+5. Power is the sum, not the arm"</blockquote>
+    <p class="cue-label">CUE (VI)</p>
+    <blockquote class="cue-vi">"1. Chân đẩy bắt đầu chuỗi
+2. Hông xoay trước vai
+3. Xoay trong làm 40% công việc
+4. Tay chỉ là hành khách
+5. Lực là tổng, không phải tay"</blockquote>
+    <h3 class="block-h3">What the diagram is saying</h3>
+    <ul class="block-bullets"><li>Three coloured segment overlays on a tennis player mid-forehand: orange = leg drive, blue = hip rotation, green = hitting hand.</li><li>Numerical breakdown of segment-movement contribution: Internal Rotation 40%, Hand Flexion 20%, Horizontal Flexion 25% — power is NOT evenly distributed.</li><li>Sequence callout (prepare → empty form → live ball → apply) maps directly onto the user's MD-note 'GRF → SSC → core agentic' arc.</li></ul>
+  </div>
+</section>
+
+
+<section class="page why-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 1  ·  FOREHAND  ·  Sources</span>
+    </header>
+    <h3 class="block-h3">Practical Instructions <span class="vi-label">(Hướng Dẫn Thực Hành)</span></h3>
+  </div><p class="md-quote md-instruction">1. Stand in ready stance, feet shoulder-width, knees soft, weight on the balls of the feet.</p><p class="md-quote md-instruction md-instruction-vi">1. Đứng tư thế sẵn sàng, chân rộng bằng vai, gối mềm, trọng lượng trên mũi chân.</p><p class="md-quote md-instruction">2. Coil: turn shoulders 45 degrees back, hands stay in front of the chest, weight loads to the back leg.</p><p class="md-quote md-instruction md-instruction-vi">2. Xoắn: vai xoay 45° ra sau, tay trước ngực, trọng lượng nạp vào chân sau.</p><p class="md-quote md-instruction">3. Drive: push off the back foot, rotate the hips, let the shoulder follow — the arm is a passenger.</p><p class="md-quote md-instruction md-instruction-vi">3. Đẩy: đẩy mạnh từ chân sau, xoay hông, để vai theo — tay là hành khách.</p><p class="md-quote md-instruction">4. Contact: meet the ball out in front, at the lower string bed, with the racket face vertical for topspin.</p><p class="md-quote md-instruction md-instruction-vi">4. Tiếp xúc: gặp bóng phía trước, ở phần dưới mặt vợt, mặt vợt dọc cho topspin.</p><p class="md-quote md-instruction">5. Recover: let the racket wrap around the left shoulder, then cross-step back to the ready position.</p><p class="md-quote md-instruction md-instruction-vi">5. Hồi phục: để vợt vòng qua vai trái, rồi bước chéo về tư thế sẵn sàng.</p></section>
+
+
+<section class="page image-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 2  ·  FOREHAND  ·  Image &amp; Caption</span>
+    </header>
+    <div class="image-wrap">
+      <img src="file:///C:/Users/Henry/Pictures/My%20Notes/Gemini/Gemini_Generated_Image_ycd2ixycd2ixycd2.png" alt="Foot Configuration — The Foundation of Every Groundstroke" loading="eager">
+    </div>
+    <div class="image-caption-block">
+      <p class="card-title-en"><b>EN:</b> Foot Configuration — The Foundation of Every Groundstroke</p>
+      <p class="card-title-vi"><b>VI:</b> Cấu hình chân — nền tảng của mọi cú đất</p>
+      <p class="quality-line">Quality: 4/5 (vision-QA, June 2026) ·
+        Path: <i>Gemini_Generated_Image_ycd2ixycd2ixycd2.png</i></p>
+      <p class="caption-line">Hand-drawn stick figure of legs only, with 3 callouts and a FHGS/BHGS reference table — bent back, straight front, COG inside the base.</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="page cue-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 2  ·  FOREHAND  ·  Cue &amp; Reading</span>
+    </header>
+    <p class="cue-label">CUE (EN)</p>
+    <blockquote class="cue-en">"1. Back leg bent deep
+2. Front leg straight as a bridge
+3. COG inside the base, not over
+4. Hand and leg on one plane
+5. Bent leg is the power leg"</blockquote>
+    <p class="cue-label">CUE (VI)</p>
+    <blockquote class="cue-vi">"1. Chân sau gập sâu
+2. Chân trước thẳng làm cầu
+3. COG trong đế, không trên
+4. Tay và chân cùng mặt phẳng
+5. Chân gập là chân lực"</blockquote>
+    <h3 class="block-h3">What the diagram is saying</h3>
+    <ul class="block-bullets"><li>Single page, legs-only stick figure with three annotations: COG = IN the base; back leg = bent; front leg = straight.</li><li>Reference table next to the figure: FHGS = front leg = Left, back leg = Right; BHGS = front leg = Right, back leg = Left.</li><li>Hand-drawn pencil-sketch style with abbreviations defined inline.</li></ul>
+  </div>
+</section>
+
+
+<section class="page why-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 2  ·  FOREHAND  ·  Sources</span>
+    </header>
+    <h3 class="block-h3">Practical Instructions <span class="vi-label">(Hướng Dẫn Thực Hành)</span></h3>
+  </div><p class="md-quote md-instruction">1. Bend the back leg deep, keep the front leg straight as a bridge.</p><p class="md-quote md-instruction md-instruction-vi">1. Chân sau gập sâu, chân trước thẳng làm cầu.</p><p class="md-quote md-instruction">2. Keep the center of gravity inside the base of the feet, not over the toes.</p><p class="md-quote md-instruction md-instruction-vi">2. Giữ trọng tâm trong đế chân, không trên mũi chân.</p><p class="md-quote md-instruction">3. Place the hand and the front leg on one plane — they should move together.</p><p class="md-quote md-instruction md-instruction-vi">3. Đặt tay và chân trước cùng mặt phẳng — phải chuyển động cùng nhau.</p><p class="md-quote md-instruction">4. The bent leg is the power leg; the straight leg is the brake leg.</p><p class="md-quote md-instruction md-instruction-vi">4. Chân gập là chân lực, chân thẳng là chân phanh.</p><p class="md-quote md-instruction">5. Stagger the feet: front foot flat, back foot on the ball with heel up.</p><p class="md-quote md-instruction md-instruction-vi">5. So le: chân trước phẳng, chân sau trên mũi, gót nhón lên.</p></section>
+
+
+<section class="page image-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 3  ·  FOREHAND  ·  Image &amp; Caption</span>
+    </header>
+    <div class="image-wrap">
+      <img src="file:///C:/Users/Henry/Pictures/My%20Notes/Gemini/Gemini_Generated_Image_v6aedzv6aedzv6ae.png" alt="How to Create a Big Shot With a Compact Stroke" loading="eager">
+    </div>
+    <div class="image-caption-block">
+      <p class="card-title-en"><b>EN:</b> How to Create a Big Shot With a Compact Stroke</p>
+      <p class="card-title-vi"><b>VI:</b> Tạo cú đánh mạnh bằng chuyển động ngắn gọn</p>
+      <p class="quality-line">Quality: 3/5 (vision-QA, June 2026) ·
+        Path: <i>Gemini_Generated_Image_v6aedzv6aedzv6ae.png</i></p>
+      <p class="caption-line">Compact stroke beats big backswing: hip-forward, brief takeback, hop counter. Side-profile stance with multiple ghost racket positions.</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="page cue-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 3  ·  FOREHAND  ·  Cue &amp; Reading</span>
+    </header>
+    <p class="cue-label">CUE (EN)</p>
+    <blockquote class="cue-en">"1. Big shot = big chain, not big backswing
+2. Hip forward, not arm back
+3. Brief takeback, brief loop
+4. Hop counter-balances the rotation
+5. Compact wins at every level"</blockquote>
+    <p class="cue-label">CUE (VI)</p>
+    <blockquote class="cue-vi">"1. Đánh mạnh = chuỗi lớn, không phải takeback xa
+2. Hông tới, không tay lùi
+3. Takeback ngắn, vòng ngắn
+4. Hop đối-trọng-lực xoay
+5. Gọn thắng ở mọi trình"</blockquote>
+    <h3 class="block-h3">What the diagram is saying</h3>
+    <ul class="block-bullets"><li>Side-profile athletic stance, bent knees leaning forward, racket extended out in front.</li><li>Multiple 'ghost' racket positions show swing path — compact loop, not full backswing.</li><li>Key annotations: 'Hip moves forward', 'Very brief take back to create momentum', 'Counter force with the hop'.</li><li>Low ball variant: 'Close Racket Face & Top Points down'. High ball variant: 'Close Racket Face & Top Points Up'.</li></ul>
+  </div>
+</section>
+
+
+<section class="page why-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 3  ·  FOREHAND  ·  Sources</span>
+    </header>
+    <h3 class="block-h3">Practical Instructions <span class="vi-label">(Hướng Dẫn Thực Hành)</span></h3>
+  </div><p class="md-quote md-instruction">1. Stand side-on, knees bent, lean forward, racket extended out in front.</p><p class="md-quote md-instruction md-instruction-vi">1. Đứng nghiêng bên, gối gập, nghiêng về trước, vợt đưa ra phía trước.</p><p class="md-quote md-instruction">2. Take a brief takeback — not a full backswing, just a small loop.</p><p class="md-quote md-instruction md-instruction-vi">2. Takeback ngắn — không phải vung sau đầy đủ, chỉ một vòng nhỏ.</p><p class="md-quote md-instruction">3. Push the hip forward; let the hip drive, not the arm.</p><p class="md-quote md-instruction md-instruction-vi">3. Đẩy hông tới, để hông dẫn dắt, không phải tay.</p><p class="md-quote md-instruction">4. Counter the rotation with a small hop on the back foot.</p><p class="md-quote md-instruction md-instruction-vi">4. Hop đối-trọng-lực xoay.</p><p class="md-quote md-instruction">5. Compact wins: brief loop + hip forward = more speed than big backswing.</p><p class="md-quote md-instruction md-instruction-vi">5. Gọn thắng: vòng ngắn + hông tới = nhanh hơn vung xa.</p></section>
+
+
+<section class="page image-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 4  ·  FOREHAND  ·  Image &amp; Caption</span>
+    </header>
+    <div class="image-wrap">
+      <img src="file:///C:/Users/Henry/Pictures/My%20Notes/Gemini%20Vi/Gemini_Generated_Image_bs27xebs27xebs27.png" alt="Forehand radius collection & acceleration" loading="eager">
+    </div>
+    <div class="image-caption-block">
+      <p class="card-title-en"><b>EN:</b> Forehand radius collection & acceleration</p>
+      <p class="card-title-vi"><b>VI:</b> Forehand radius thu gom & tăng tốc</p>
+      <p class="quality-line">Quality: 4/5 (vision-QA, June 2026) ·
+        Path: <i>Gemini_Generated_Image_bs27xebs27xebs27.png</i></p>
+      <p class="caption-line">Forehand radius collection & acceleration</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="page cue-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 4  ·  FOREHAND  ·  Cue &amp; Reading</span>
+    </header>
+    <p class="cue-label">CUE (EN)</p>
+    <blockquote class="cue-en">"1. Bend the knees to load
+2. Coil the torso before swing
+3. Hips lead, arm follows
+4. Release the coil — do not force it
+5. Racket head drops, lag creates speed"</blockquote>
+    <p class="cue-label">CUE (VI)</p>
+    <blockquote class="cue-vi">"1. Gập gối để nạp
+2. Xoắn thân trước vung
+3. Hông dẫn, tay theo
+4. Thả xoắn — đừng ép
+5. Đầu vợt rơi, trễ tạo tốc"</blockquote>
+    <h3 class="block-h3">What the diagram is saying</h3>
+    <ul class="block-bullets"><li>Diagrammatic illustration: Forehand radius collection & acceleration</li></ul>
+  </div>
+</section>
+
+
+<section class="page why-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 4  ·  FOREHAND  ·  Sources</span>
+    </header>
+    <h3 class="block-h3">Practical Instructions <span class="vi-label">(Hướng Dẫn Thực Hành)</span></h3>
+    
+  </div><p class="md-quote md-instruction">1. Bend the knees to load the legs before the swing.</p><p class="md-quote md-instruction md-instruction-vi">1. Gập gối để nạp chân trước cú vung.</p><p class="md-quote md-instruction">2. Coil the torso — shoulders turn back, hips stay quiet.</p><p class="md-quote md-instruction md-instruction-vi">2. Xoắn thân — vai xoay lùi, hông giữ yên.</p><p class="md-quote md-instruction">3. Release the coil: hips lead, arm follows, racket head drops.</p><p class="md-quote md-instruction md-instruction-vi">3. Thả xoắn: hông dẫn, tay theo, đầu vợt rơi xuống.</p><p class="md-quote md-instruction">4. Do not force the swing — let the loaded body unwind.</p><p class="md-quote md-instruction md-instruction-vi">4. Đừng ép cú vung — để cơ thể đã nạp tự bung.</p><p class="md-quote md-instruction">5. The racket head lags behind the hand, creating whip-like speed at contact.</p><p class="md-quote md-instruction md-instruction-vi">5. Đầu vợt trễ sau tay, tạo tốc độ roi da ở tiếp xúc.</p></section>
+
+
+<section class="page image-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 5  ·  FOREHAND  ·  Image &amp; Caption</span>
+    </header>
+    <div class="image-wrap">
+      <img src="file:///C:/Users/Henry/Pictures/My%20Notes/Gemini/Gemini_Generated_Image_514hfr514hfr514h.png" alt="Forehand wrist supination/pronation" loading="eager">
+    </div>
+    <div class="image-caption-block">
+      <p class="card-title-en"><b>EN:</b> Forehand wrist supination/pronation</p>
+      
+      <p class="quality-line">Quality: 4/5 (vision-QA, June 2026) ·
+        Path: <i>Gemini_Generated_Image_514hfr514hfr514h.png</i></p>
+      <p class="caption-line">Forehand wrist supination/pronation</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="page cue-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 5  ·  FOREHAND  ·  Cue &amp; Reading</span>
+    </header>
+    <p class="cue-label">CUE (EN)</p>
+    <blockquote class="cue-en">"1. Hold loose — like holding a baby bird
+2. Wrist lag = natural speed, not forced
+3. Thumb up at contact, palm faces out
+4. Pronation is shoulder-driven, not wrist
+5. Forearm rotates around its own axis
+6. Loose wrist, tight grip is the wrong order
+7. Let the ball 'bite' the strings
+8. Watch your palm — vertical = neutral
+9. Don't snap — let lag release
+10. Wrist supinates after contact, not before"</blockquote>
+    <p class="cue-label">CUE (VI)</p>
+    <blockquote class="cue-vi">"1. Cầm lỏng — như cầm chim non
+2. Cổ tay trễ = tốc độ tự nhiên, không ép
+3. Ngón cái lên ở tiếp xúc, lòng bàn tay hướng ra
+4. Xoay cẳng tay do vai, không phải cổ tay
+5. Cẳng tay xoay quanh trục của chính nó
+6. Cổ tay lỏng, cầm chặt là sai thứ tự
+7. Để bóng 'cắn' dây vợt
+8. Nhìn lòng bàn tay — dọc = trung tính
+9. Đừng snap — để độ trễ tự bung
+10. Cổ tay supinates sau tiếp xúc, không trước"</blockquote>
+    <h3 class="block-h3">What the diagram is saying</h3>
+    <ul class="block-bullets"><li>Diagrammatic illustration: Forehand wrist supination/pronation</li></ul>
+  </div>
+</section>
+
+
+<section class="page why-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 5  ·  FOREHAND  ·  Sources</span>
+    </header>
+    <h3 class="block-h3">Practical Instructions <span class="vi-label">(Hướng Dẫn Thực Hành)</span></h3>
+    
+  </div><p class="md-quote md-instruction">1. Hold the racket loose, like holding a baby bird — firm enough not to drop, gentle enough not to crush.</p><p class="md-quote md-instruction md-instruction-vi">1. Cầm vợt lỏng, như cầm chim non — chắc để không rơi, nhẹ để không bẹp.</p><p class="md-quote md-instruction">2. Keep the wrist laid back at contact, not actively bent.</p><p class="md-quote md-instruction md-instruction-vi">2. Giữ cổ tay laid-back ở tiếp xúc, không gập chủ động.</p><p class="md-quote md-instruction">3. Thumb points up at contact, palm faces out toward the target.</p><p class="md-quote md-instruction md-instruction-vi">3. Ngón cái hướng lên ở tiếp xúc, lòng bàn tay hướng ra mục tiêu.</p><p class="md-quote md-instruction">4. Pronation is shoulder-driven, not wrist-snap — let the body rotate, the wrist follows.</p><p class="md-quote md-instruction md-instruction-vi">4. Pronation do vai dẫn, không phải cổ tay — để thân xoay, cổ tay theo.</p><p class="md-quote md-instruction">5. After contact, let the racket continue rotating around the forearm's own axis — no manual flick.</p><p class="md-quote md-instruction md-instruction-vi">5. Sau tiếp xúc, để vợt tiếp tục xoay quanh trục cẳng tay — không flick bằng tay.</p></section>
+
+
+<section class="page image-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 6  ·  FOREHAND  ·  Image &amp; Caption</span>
+    </header>
+    <div class="image-wrap">
+      <img src="file:///C:/Users/Henry/Pictures/My%20Notes/Gemini/Gemini_Generated_Image_57y87z57y87z57y8.png" alt="Ball contact path — flat vs topspin" loading="eager">
+    </div>
+    <div class="image-caption-block">
+      <p class="card-title-en"><b>EN:</b> Ball contact path — flat vs topspin</p>
+      
+      <p class="quality-line">Quality: 4/5 (vision-QA, June 2026) ·
+        Path: <i>Gemini_Generated_Image_57y87z57y87z57y8.png</i></p>
+      <p class="caption-line">Ball contact path — flat vs topspin</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="page cue-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 6  ·  FOREHAND  ·  Cue &amp; Reading</span>
+    </header>
+    <p class="cue-label">CUE (EN)</p>
+    <blockquote class="cue-en">"1. Meet the ball out in front
+2. Contact at lower part of string bed
+3. Don't push through the ball
+4. Let the strings bite, then release
+5. Flat vs topspin = face angle difference
+6. Topspin face angle: 5-10° from vertical
+7. Flat face = cleanest power transfer
+8. Brush up the back for topspin
+9. Lower contact = more control
+10. Feel the ball compress into strings"</blockquote>
+    <p class="cue-label">CUE (VI)</p>
+    <blockquote class="cue-vi">"1. Gặp bóng phía trước người
+2. Tiếp xúc ở phần dưới mặt vợt
+3. Đừng đẩy xuyên bóng
+4. Để dây cắn, rồi bung ra
+5. Phẳng vs topspin = khác góc mặt vợt
+6. Góc mặt vợt topspin: 5-10° từ dọc
+7. Mặt phẳng = truyền lực sạch nhất
+8. Quét lên phía sau cho topspin
+9. Tiếp xúc thấp hơn = kiểm soát nhiều hơn
+10. Cảm nhận bóng nén vào dây"</blockquote>
+    <h3 class="block-h3">What the diagram is saying</h3>
+    <ul class="block-bullets"><li>Diagrammatic illustration: Ball contact path — flat vs topspin</li></ul>
+  </div>
+</section>
+
+
+<section class="page why-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 6  ·  FOREHAND  ·  Sources</span>
+    </header>
+    <h3 class="block-h3">Practical Instructions <span class="vi-label">(Hướng Dẫn Thực Hành)</span></h3>
+    
+  </div><p class="md-quote md-instruction">1. Meet the ball out in front, not next to the body.</p><p class="md-quote md-instruction md-instruction-vi">1. Gặp bóng phía trước người, không sát thân.</p><p class="md-quote md-instruction">2. For flat: contact with the racket face vertical, just push through the ball.</p><p class="md-quote md-instruction md-instruction-vi">2. Phẳng: tiếp xúc mặt vợt dọc, chỉ đẩy xuyên bóng.</p><p class="md-quote md-instruction">3. For topspin: contact lower on the string bed, brush up the back of the ball.</p><p class="md-quote md-instruction md-instruction-vi">3. Topspin: tiếp xúc thấp ở mặt vợt, quét lên phía sau bóng.</p><p class="md-quote md-instruction">4. The face angle difference between flat and topspin is only 5-10 degrees.</p><p class="md-quote md-instruction md-instruction-vi">4. Khác biệt góc mặt vợt giữa phẳng và topspin chỉ 5-10°.</p><p class="md-quote md-instruction">5. Feel the ball compress into the strings, then release — let the strings bite.</p><p class="md-quote md-instruction md-instruction-vi">5. Cảm nhận bóng nén vào dây, rồi thả ra — để dây cắn.</p></section>
+
+
+<section class="page image-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 7  ·  FOREHAND  ·  Image &amp; Caption</span>
+    </header>
+    <div class="image-wrap">
+      <img src="file:///C:/Users/Henry/Pictures/My%20Notes/Gemini/Gemini_Generated_Image_kb7pjckb7pjckb7p.png" alt="Sling-shot Grip" loading="eager">
+    </div>
+    <div class="image-caption-block">
+      <p class="card-title-en"><b>EN:</b> Sling-shot Grip</p>
+      
+      <p class="quality-line">Quality: 4/5 (vision-QA, June 2026) ·
+        Path: <i>Gemini_Generated_Image_kb7pjckb7pjckb7p.png</i></p>
+      <p class="caption-line">Sling-shot Grip / "ball out in front"</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="page cue-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 7  ·  FOREHAND  ·  Cue &amp; Reading</span>
+    </header>
+    <p class="cue-label">CUE (EN)</p>
+    <blockquote class="cue-en">"1. Hold between thumb and middle finger only
+2. Drop the racket — feel it fall
+3. Loose grip = natural lag
+4. Two fingers hold, three fingers release
+5. Sling = elbow up, racket head down
+6. Beyond the joint = beyond the body's reach
+7. The racket falls BEFORE you swing
+8. Sling creates whip, swing creates noise
+9. Don't squeeze — trust the sling
+10. The whip is gravity + rotation"</blockquote>
+    <p class="cue-label">CUE (VI)</p>
+    <blockquote class="cue-vi">"1. Chỉ cầm giữa ngón cái và ngón giữa
+2. Thả vợt — cảm nhận nó rơi
+3. Cầm lỏng = độ trễ tự nhiên
+4. Hai ngón giữ, ba ngón thả
+5. Sling = khuỷu lên, đầu vợt xuống
+6. Vượt khớp = vượt tầm cơ thể
+7. Vợt rơi TRƯỚC khi bạn vung
+8. Sling tạo roi, vung tạo ồn
+9. Đừng bóp — tin vào sling
+10. Cái roi là trọng lực + xoay"</blockquote>
+    <h3 class="block-h3">What the diagram is saying</h3>
+    <ul class="block-bullets"><li>Diagrammatic illustration: Sling-shot Grip / "ball out in front"</li></ul>
+  </div>
+</section>
+
+
+<section class="page why-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 7  ·  FOREHAND  ·  Sources</span>
+    </header>
+    <h3 class="block-h3">Practical Instructions <span class="vi-label">(Hướng Dẫn Thực Hành)</span></h3>
+    
+  </div><p class="md-quote md-instruction">1. Hold the racket between thumb and middle finger only — let the other fingers relax.</p><p class="md-quote md-instruction md-instruction-vi">1. Chỉ cầm giữa ngón cái và ngón giữa — các ngón khác thả lỏng.</p><p class="md-quote md-instruction">2. Drop the racket: feel the head fall freely, gravity creates the lag.</p><p class="md-quote md-instruction md-instruction-vi">2. Thả vợt: cảm nhận đầu vợt rơi tự do, trọng lực tạo độ trễ.</p><p class="md-quote md-instruction">3. Two fingers hold, three fingers release — keep the grip pressure under 4/10 until contact.</p><p class="md-quote md-instruction md-instruction-vi">3. Hai ngón giữ, ba ngón thả — giữ grip dưới 4/10 cho tới tiếp xúc.</p><p class="md-quote md-instruction">4. Raise the elbow up, let the racket head drop below the hand — the L-shape.</p><p class="md-quote md-instruction md-instruction-vi">4. Nâng khuỷu lên, để đầu vợt rơi thấp hơn tay — hình chữ L.</p><p class="md-quote md-instruction">5. At contact, the whip releases: gravity + rotation = speed, not muscle.</p><p class="md-quote md-instruction md-instruction-vi">5. Ở tiếp xúc, roi bung: trọng lực + xoay = tốc độ, không phải cơ bắp.</p></section>
+
+
+<section class="page summary-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">FOREHAND  ·  Summary</span>
+    </header>
+    <h2 class="page-h2">3 takeaway cuối</h2>
+    <ol class="takeaway-list"><li>(1) Phân bổ lực là chuỗi, không phải cánh tay. Internal rotation đóng 40%; arm swing chỉ là passenger.</li><li>(2) Bent-back + straight-front stance là foundation. COG in the base. Mọi groundstroke bắt đầu từ đây.</li><li>(3) Compact wins over big. Brief loop + hip forward + hop counter là đủ để tạo racket head speed.</li></ol>
+    <h2 class="page-h2">Drills tham khảo (20-min practice)</h2>
+    <ol class="drill-list"><li>5 phút Shadow với khăn (zero ball) — chỉ tập chuỗi chân → hông → tay, không bóng.</li><li>5 phút Hit from basket từ middle baseline, target: 7/10 quả vào 1m zone bên trong baseline.</li><li>5 phút Cross-court rally — chỉ tập redirect, không cố kill.</li><li>5 phút Service-box volley poach (compact finish) — lặp lại cú compact stroke ở forehand.</li></ol>
+    
+  </div>
+</section>
+<section class="page end-page">
+  <div class="page-inner">
+    <h3 class="end-h3">End of FOREHAND</h3>
+    <p class="end-line">Henry Pham · Visual Coaching Library · Pilot Series · June 2026</p>
+  </div>
+</section>
+
+    </div>
+  </div>
+</main>
+
+<footer class="bar">
+  Click page edge  ·  or use <kbd>←</kbd> <kbd>→</kbd> arrow keys  ·  <kbd>Home</kbd>/<kbd>End</kbd> jump  ·  <kbd>P</kbd> print
+</footer>
+
+<script>
+(function() {
+  const host = document.getElementById('page-host');
+  const strip = document.getElementById('strip');
+  const progressEl = document.getElementById('progress');
+  const stage = document.querySelector('main.stage');
+
+  // Move all .page children out of the host into the strip in order.
+  const pages = Array.from(host.querySelectorAll('.page'));
+  pages.forEach((p) => strip.appendChild(p));
+  host.remove();
+
+  const total = pages.length;
+  // We move by 2 pages per step (one "spread").
+  const totalSpreads = Math.ceil(total / 2);
+  let spread = 0;  // 0-indexed
+
+  // Compute viewport to horizontally center the current spread.
+  function recenter() {
+    const stageW = stage.clientWidth;
+    const pageW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--page-w'));
+    const visible = 2 * pageW;
+    // Strip is laid out with each page at x = i * pageW. The current
+    // spread spans [spread * visible, (spread+1) * visible] in strip coords.
+    // Its center sits at (spread + 0.5) * visible.
+    // We translateX so that point lands at stageW/2.
+    let translate = (stageW / 2) - (spread + 0.5) * visible;
+    // Clamp: don't allow positive translate (would expose empty space on left)
+    if (translate > 0) translate = 0;
+    // Don't allow the strip's right edge to go further left than stageW.
+    const stripTotalW = total * pageW;
+    const minTranslate = stageW - stripTotalW;
+    if (translate < minTranslate) translate = minTranslate;
+    strip.style.transform = `translateX(${translate}px)`;
+    const p1 = spread * 2 + 1;
+    const p2 = Math.min(spread * 2 + 2, total);
+    progressEl.textContent = `Spread ${spread + 1} of ${totalSpreads} (page ${p1}-${p2})`;
+  }
+
+  function flipNext() {
+    if (spread >= totalSpreads - 1) return;
+    spread++;
+    recenter();
+  }
+  function flipPrev() {
+    if (spread <= 0) return;
+    spread--;
+    recenter();
+  }
+  function jumpFirst() { spread = 0; recenter(); }
+  function jumpLast()  { spread = totalSpreads - 1; recenter(); }
+
+  document.getElementById('btn-prev').addEventListener('click', flipPrev);
+  document.getElementById('btn-next').addEventListener('click', flipNext);
+  document.getElementById('btn-start').addEventListener('click', jumpFirst);
+  document.getElementById('btn-end').addEventListener('click', jumpLast);
+  document.getElementById('btn-print').addEventListener('click', () => window.print());
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { flipNext(); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { flipPrev(); e.preventDefault(); }
+    else if (e.key === 'Home') { jumpFirst(); e.preventDefault(); }
+    else if (e.key === 'End') { jumpLast(); e.preventDefault(); }
+    else if (e.key.toLowerCase() === 'p') { window.print(); }
+  });
+
+  // Click on right edge of book flips forward; left edge flips back.
+  stage.addEventListener('click', (e) => {
+    const rect = stage.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    if (x > rect.width * 0.85) flipNext();
+    else if (x < rect.width * 0.15) flipPrev();
+  });
+
+  window.addEventListener('resize', recenter);
+  recenter();
+})();
+</script>
+
+</body>
+</html>

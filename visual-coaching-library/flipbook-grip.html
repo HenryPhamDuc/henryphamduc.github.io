@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Visual Coaching Library — GRIP</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+/* ----------------------------------------------------------------
+   Visual Coaching Library — Flipbook CSS (2-page spread navigation)
+
+   Pages are arranged in a horizontal strip. The viewer shows two pages
+   at a time (one logical spread). Click/arrow keys translate the strip
+   by one column (two pages). Each click reveals two new pages.
+
+   No 3D transforms, no external deps — works in any browser.
+   ---------------------------------------------------------------- */
+:root {
+  --page-w: 720px;
+  --page-h: 880px;
+  --page-radius: 4px;
+  --bg: #1f2933;
+  --paper: #fcfaf6;
+  --ink: #1f2933;
+  --ink-soft: #495057;
+  --accent: #0F5132;
+  --accent-2: #198754;
+  --accent-blue: #0D6EFD;
+  --accent-orange: #C73E1D;
+  --rule: #c4b5a0;
+  --shadow: rgba(0,0,0,0.25);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); color: #ddd;
+  font-family: "Segoe UI", "DejaVu Sans", "Liberation Sans", Helvetica, Arial, sans-serif; }
+body { display: flex; flex-direction: column; overflow: hidden; }
+
+header.bar {
+  height: 50px; background: #0d1419; color: #ddd;
+  display: flex; align-items: center; padding: 0 16px;
+  border-bottom: 1px solid #2a343e; flex-shrink: 0;
+}
+header.bar h1 { font-size: 16px; margin: 0; flex-grow: 1; letter-spacing: 0.4px; }
+header.bar .nav-btn {
+  background: #2a343e; color: #ddd; border: 1px solid #3a4451;
+  padding: 6px 14px; margin-left: 8px; border-radius: 4px; cursor: pointer;
+  font-size: 13px;
+}
+header.bar .nav-btn:hover { background: #3a4451; }
+header.bar .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+header.bar .progress { margin-left: 16px; font-size: 12px; color: #98a4b3; min-width: 110px; }
+
+main.stage {
+  flex-grow: 1; display: block;  /* plain block; strip is positioned with translateX */
+  position: relative; overflow: hidden;
+}
+
+/* The viewport shows two .page side-by-side. We translate the strip
+   by increments of (2 * page-w) so each step moves two pages. */
+.strip {
+  display: flex;
+  align-items: stretch;
+  transition: transform 0.5s ease-in-out;
+  /* the strip itself is taller than viewport so vertical scroll inside is possible */
+}
+
+.page {
+  flex: 0 0 var(--page-w);
+  width: var(--page-w);
+  height: var(--page-h);
+  background: var(--paper);
+  color: var(--ink);
+  position: relative;
+  box-shadow: 0 8px 24px var(--shadow), inset 0 0 0 1px rgba(0,0,0,0.05);
+  overflow: hidden;
+  margin: 0;
+  /* Pair pages sit side-by-side: subtle inner shadow at spine */
+}
+.page + .page { border-left: 1px solid var(--rule); }
+
+.page-inner {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  padding: 28px 32px;
+  overflow-y: auto;
+}
+
+/* Typography */
+.page h1.cover-h1 { font-size: 36px; font-weight: 700; color: var(--accent); margin: 4px 0;
+  text-align: center; line-height: 1.15; }
+.page h2.page-h2 { font-size: 18px; font-weight: 700; color: var(--accent-2); margin: 4px 0 10px 0; }
+.page h3.block-h3 { font-size: 12px; font-weight: 700; color: var(--accent); margin: 12px 0 4px 0;
+  text-transform: uppercase; letter-spacing: 0.6px; }
+.page p, .page li { font-size: 13px; line-height: 1.55; color: var(--ink); }
+.page p { margin: 0 0 8px 0; }
+.page ul, .page ol { margin: 0 0 10px 18px; padding: 0 0 0 4px; }
+
+/* Cover-specific */
+.cover-page { background: linear-gradient(135deg, #fff 0%, #f5efe4 100%); }
+.cover-page .cover-tagline { font-size: 16px; color: var(--accent-2); text-align: center;
+  margin: 4px 0 12px 0; font-style: italic; }
+.cover-page .cover-icon { font-size: 14px; text-align: center; font-weight: 700;
+  letter-spacing: 3px; color: var(--ink-soft); background: #f1ebdc; padding: 4px 16px;
+  border-radius: 3px; width: max-content; margin: 6px auto 14px auto; display: block; }
+.cover-page .cover-meta { text-align: center; font-size: 13px; color: var(--ink-soft); margin: 6px 0; }
+.cover-page .cover-topics { list-style: none; padding: 0; margin: 10px auto 0 auto; max-width: 90%;
+  text-align: center; }
+.cover-page .cover-topics li { font-size: 13px; margin: 3px 0; color: var(--ink); }
+.cover-page .cover-foot { text-align: center; font-size: 11px; color: var(--ink-soft); margin: 4px 0; }
+.cover-page .cover-foot.small { font-size: 10px; }
+.cover-page .cover-intro p { font-size: 12.5px; line-height: 1.5; margin: 4px 0; }
+
+.index-page .page-index li { font-size: 12.5px; line-height: 1.55; color: var(--ink-soft);
+  margin: 6px 0; }
+
+.spacer-30 { height: 28px; }
+
+/* Divider page */
+.divider-page { background: linear-gradient(135deg, #fff 0%, #f5efe4 100%); }
+.divider-eyebrow { text-align: center; font-size: 10px; letter-spacing: 3px;
+  color: var(--ink-soft); margin-bottom: 30px; text-transform: uppercase; }
+.blank-page-divider .small-print { color: var(--ink-soft); font-size: 10px; font-style: italic; }
+
+/* Image page */
+.image-page .image-wrap {
+  width: 100%; height: 520px;
+  display: flex; align-items: center; justify-content: center;
+  background: #eee; border: 1px solid var(--rule); border-radius: 4px;
+  overflow: hidden; margin-bottom: 12px;
+}
+.image-page .image-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.image-page .card-title-en, .image-page .card-title-vi {
+  font-size: 13px; margin: 4px 0; line-height: 1.4;
+}
+.image-page .card-title-vi { color: var(--accent-orange); }
+.image-page .quality-line { font-size: 10.5px; color: var(--ink-soft); margin: 4px 0; }
+.image-page .caption-line { font-size: 12px; margin: 6px 0 0 0; line-height: 1.45; }
+
+.page-header { border-bottom: 1px solid var(--rule); padding-bottom: 6px; margin-bottom: 12px; }
+.page-label { font-size: 10px; color: var(--ink-soft); text-transform: uppercase;
+  letter-spacing: 1.2px; font-weight: 600; }
+
+/* Cue page */
+.cue-page .cue-label { font-size: 10px; color: var(--ink-soft); margin: 4px 0 2px 0;
+  text-transform: uppercase; font-weight: 700; letter-spacing: 1px; }
+.cue-page .cue-en, .cue-page .cue-vi {
+  margin: 0 0 8px 0; padding: 10px 14px; font-size: 13px; line-height: 1.5;
+  font-style: italic; border-radius: 4px; font-weight: 600;
+}
+.cue-page .cue-en { background: #E7F1FF; color: var(--accent-blue); border-left: 4px solid var(--accent-blue); }
+.cue-page .cue-vi { background: #FFF4E5; color: var(--accent-orange); border-left: 4px solid var(--accent-orange); }
+.cue-page .block-bullets li { font-size: 12.5px; line-height: 1.45; margin: 3px 0; }
+
+/* Why page */
+
+
+.why-page .md-quote { background: #F8F9FA; border-left: 4px solid #cbd5e1;
+  padding: 8px 12px; font-size: 12px; line-height: 1.5; color: var(--ink);
+  border-radius: 4px; margin: 5px 0; font-style: italic; }.why-page .md-instruction { background: #F0F9F4; border-left: 4px solid #5a8a5e; font-style: normal; font-size: 12.5px; line-height: 1.5; color: var(--ink); }.why-page .md-instruction-vi { background: #FFFAF0; border-left-color: #d4a574; color: #444; font-style: italic; }.why-page .vi-label { color: #666; font-size: 12px; font-weight: normal; font-style: italic; }
+
+/* Summary */
+.summary-page .takeaway-list, .summary-page .drill-list { padding-left: 20px; }
+.summary-page .takeaway-list li { font-size: 13px; line-height: 1.55; margin: 6px 0; color: var(--accent); }
+.summary-page .drill-list li { font-size: 12px; line-height: 1.5; margin: 3px 0;
+  border-left: 3px solid var(--accent-2); padding-left: 8px; }
+
+/* End page */
+.end-page { background: #f5efe4; text-align: center; padding: 60px 20px; }
+.end-h3 { font-size: 20px; color: var(--accent); }
+.end-line { font-size: 11px; color: var(--ink-soft); margin-top: 10px; }
+
+footer.bar {
+  height: 38px; background: #0d1419; color: #98a4b3;
+  display: flex; align-items: center; justify-content: center; padding: 0 16px;
+  font-size: 11px; border-top: 1px solid #2a343e; flex-shrink: 0;
+}
+footer.bar kbd { background: #2a343e; padding: 1px 6px; border-radius: 3px;
+  margin: 0 3px; font-family: ui-monospace, "Cascadia Code", monospace; font-size: 10px; }
+
+@media (max-width: 1500px) {
+  :root { --page-w: 560px; --page-h: 760px; }
+}
+@media (max-width: 1180px) {
+  :root { --page-w: 420px; --page-h: 600px; }
+}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <h1>Visual Coaching Library — GRIP</h1>
+  <span class="progress" id="progress">Page 1 of 1</span>
+  <button class="nav-btn" id="btn-start">« First</button>
+  <button class="nav-btn" id="btn-prev">‹ Prev</button>
+  <button class="nav-btn" id="btn-next">Next ›</button>
+  <button class="nav-btn" id="btn-end">Last »</button>
+  <button class="nav-btn" id="btn-print">Print / Save PDF</button>
+</header>
+
+<main class="stage">
+  <div class="strip" id="strip">
+    <!-- Pages are populated by JS from the page-host below -->
+    <div class="page-host" id="page-host" style="display:none;">
+      
+<section class="page cover-page">
+  <div class="page-inner">
+    <h1 class="cover-h1">Visual Coaching Library</h1>
+    <p class="cover-tagline">Loose → Firm only at Impact — Grip Types vs Spin</p>
+    <div class="cover-icon">[GRIP]</div>
+    <div class="spacer-30"></div>
+    <p class="cover-meta">4 cards  ·  master-coach-direct</p>
+    <div class="cover-intro"><p>Grip không phải cầm chết như cầm búa. Sổ tay của bạn ghi: 'Không lỏng — Không quá chặt'. Lỏng quá thì vợt xoay trong tay; chặt quá thì cổ tay bị khóa, không whip được.</p><p>Hai ảnh dưới đây: slingshot grip (nhẹ nhàng để gravity kéo vợt rơi) và bản đồ grip types vs shot quality (Continental vs Eastern vs Semi-Western vs Western).</p></div>
+    <div class="spacer-30"></div>
+    <p class="cover-foot">June 2026 — bilingual EN + VI<br>
+    Source: MD notes + Gemini-generated images</p>
+  </div>
+</section>
+<section class="page index-page">
+  <div class="page-inner">
+    <h2 class="page-h2">Index of Cards</h2>
+    <ol class="page-index">
+      <li>Slingshot Grip — Pre-stretched Tension  ·  quality: 3/5</li><li>Grip Types vs Shot Quality (Topspin, Slice, Flat)  ·  quality: 4/5</li><li>Grip  ·  quality: 4/5</li><li>Palm Up  ·  quality: 4/5</li>
+    </ol>
+  </div>
+</section>
+
+
+<section class="page image-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 1  ·  GRIP  ·  Image &amp; Caption</span>
+    </header>
+    <div class="image-wrap">
+      <img src="file:///C:/Users/Henry/Pictures/My%20Notes/Gemini/How%20to%20hold%20a%20grip.png" alt="Slingshot Grip — Pre-stretched Tension" loading="eager">
+    </div>
+    <div class="image-caption-block">
+      <p class="card-title-en"><b>EN:</b> Slingshot Grip — Pre-stretched Tension</p>
+      <p class="card-title-vi"><b>VI:</b> Grip Sling-shot — Căng trước khi đánh</p>
+      <p class="quality-line">Quality: 3/5 (vision-QA, June 2026) ·
+        Path: <i>How to hold a grip.png</i></p>
+      <p class="caption-line">Two-hand demo of slingshot grip: fingers cover handle, palm rests racket, gravity drops racket head for whip acceleration.</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="page cue-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 1  ·  GRIP  ·  Cue &amp; Reading</span>
+    </header>
+    <p class="cue-label">CUE (EN)</p>
+    <blockquote class="cue-en">"Slingshot grip: handle rests in palm, fingers just cover (not grip). At release, gravity drops the racket head — that's where the whip comes from."</blockquote>
+    <p class="cue-label">CUE (VI)</p>
+    <blockquote class="cue-vi">"Grip sling-shot: cán vợt nằm trong lòng bàn tay, ngón tay chỉ che (không bóp). Khi thả, trọng lực kéo đầu vợt rơi — đó là nguồn whip."</blockquote>
+    <h3 class="block-h3">What the diagram is saying</h3>
+    <ul class="block-bullets"><li>Top: upper hand in relaxed position over racket head area.</li><li>Bottom: lower hand gripping the butt of the handle (palm not fingers).</li><li>Handwritten callouts: 'Sling-shot grip (Pre-stretched tensions)', 'Racket handle only rests on left palm', 'Fingers not holding but gently cover', 'Gravity pull on release / Racket head will slide'.</li><li>Background: PXL_*.jpg reference (the source handwritten notes).</li></ul>
+  </div>
+</section>
+
+
+<section class="page why-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 1  ·  GRIP  ·  Sources</span>
+    </header>
+    <h3 class="block-h3">Practical Instructions <span class="vi-label">(Hướng Dẫn Thực Hành)</span></h3><p class="md-quote md-instruction">1. Hold the racket with two fingers only: thumb and middle finger on the handle.</p><p class="md-quote md-instruction md-instruction-vi">1. Cầm vợt chỉ bằng hai ngón: ngón cái và ngón giữa trên cán.</p><p class="md-quote md-instruction">2. Three fingers (index, ring, pinky) gently cover but do not grip — release ready.</p><p class="md-quote md-instruction md-instruction-vi">2. Ba ngón (trỏ, áp út, út) phủ nhẹ nhưng không cầm — sẵn sàng thả.</p><p class="md-quote md-instruction">3. Drop the racket: feel the head fall, gravity does the work of the swing.</p><p class="md-quote md-instruction md-instruction-vi">3. Thả vợt: cảm nhận đầu vợt rơi, trọng lực làm việc của cú vung.</p><p class="md-quote md-instruction">4. Pre-stretch the tendons — like a slingshot, the more you stretch, the more energy stored.</p><p class="md-quote md-instruction md-instruction-vi">4. Pre-stretch gân — như sling-shot, kéo căng càng nhiều, năng lượng càng nhiều.</p><p class="md-quote md-instruction">5. At contact, the slingshot releases — racket whips forward without muscular effort.</p><p class="md-quote md-instruction md-instruction-vi">5. Ở tiếp xúc, sling-shot bung — vợt quất tới mà không cần lực cơ bắp.</p>
+  </div>
+</section>
+
+
+<section class="page image-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 2  ·  GRIP  ·  Image &amp; Caption</span>
+    </header>
+    <div class="image-wrap">
+      <img src="file:///C:/Users/Henry/Pictures/My%20Notes/Gemini/Infographics-Foerhand.png" alt="Grip Types vs Shot Quality (Topspin, Slice, Flat)" loading="eager">
+    </div>
+    <div class="image-caption-block">
+      <p class="card-title-en"><b>EN:</b> Grip Types vs Shot Quality (Topspin, Slice, Flat)</p>
+      <p class="card-title-vi"><b>VI:</b> Grip vs Chất lượng bóng (Topspin, Slice, Flat)</p>
+      <p class="quality-line">Quality: 4/5 (vision-QA, June 2026) ·
+        Path: <i>Infographics-Foerhand.png</i></p>
+      <p class="caption-line">Reused from forehand card 1 — the forehand anatomy infographic includes grip-type vs contact-point + trajectory mapping.</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="page cue-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 2  ·  GRIP  ·  Cue &amp; Reading</span>
+    </header>
+    <p class="cue-label">CUE (EN)</p>
+    <blockquote class="cue-en">"Western = upper contact, topspin. Continental = lower contact, slice. The grip determines WHERE you meet the ball, and WHERE determines the spin."</blockquote>
+    <p class="cue-label">CUE (VI)</p>
+    <blockquote class="cue-vi">"Western = tiếp xúc trên, topspin. Continental = tiếp xúc dưới, slice. Grip quyết định BẠN GẶP BÓNG Ở ĐÂU, và đó quyết định xoáy."</blockquote>
+    <h3 class="block-h3">What the diagram is saying</h3>
+    <ul class="block-bullets"><li>Side-by-side comparison: Eastern/Semi-Western grips vs Continental grip.</li><li>Each grip shows ball contact location on the string bed (upper vs lower).</li><li>Trajectory arrows: how open/closed racket face changes ball flight.</li><li>Topspin-friendly vs slice-friendly grip positions.</li></ul>
+  </div>
+</section>
+
+
+<section class="page why-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 2  ·  GRIP  ·  Sources</span>
+    </header>
+    <h3 class="block-h3">Practical Instructions <span class="vi-label">(Hướng Dẫn Thực Hành)</span></h3><p class="md-quote md-instruction">1. Continental grip (bevel 2) for slice, serve, volley — face perpendicular, low contact point.</p><p class="md-quote md-instruction md-instruction-vi">1. Continental (bevel 2) cho slice, serve, volley — mặt vuông góc, điểm tiếp xúc thấp.</p><p class="md-quote md-instruction">2. Eastern grip (bevel 3) for flat shots — face vertical, mid contact point.</p><p class="md-quote md-instruction md-instruction-vi">2. Eastern (bevel 3) cho cú phẳng — mặt dọc, điểm tiếp xúc giữa.</p><p class="md-quote md-instruction">3. Semi-Western (bevel 4) for topspin — face slightly closed, low-to-mid contact.</p><p class="md-quote md-instruction md-instruction-vi">3. Semi-Western (bevel 4) cho topspin — mặt hơi đóng, thấp-tới-giữa.</p><p class="md-quote md-instruction">4. Western (bevel 5) for heavy topspin — face closed, very low contact, big brushing motion.</p><p class="md-quote md-instruction md-instruction-vi">4. Western (bevel 5) cho topspin nặng — mặt đóng, rất thấp, quét lớn.</p><p class="md-quote md-instruction">5. Match grip to ball height: low ball = more Western, high ball = more Eastern/Continental.</p><p class="md-quote md-instruction md-instruction-vi">5. Khớp grip với độ cao bóng: bóng thấp = Western nhiều hơn, bóng cao = Eastern/Continental.</p>
+  </div>
+</section>
+
+
+<section class="page image-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 3  ·  GRIP  ·  Image &amp; Caption</span>
+    </header>
+    <div class="image-wrap">
+      <img src="file:///C:/Users/Henry/Pictures/My%20Notes/Gemini%20Vi/Gemini_Generated_Image_trzundtrzundtrzu.png" alt="Grip" loading="eager">
+    </div>
+    <div class="image-caption-block">
+      <p class="card-title-en"><b>EN:</b> Grip</p>
+      
+      <p class="quality-line">Quality: 4/5 (vision-QA, June 2026) ·
+        Path: <i>Gemini_Generated_Image_trzundtrzundtrzu.png</i></p>
+      <p class="caption-line">Grip / forearm rotation / racket face angle (FH-BH combo systems)</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="page cue-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 3  ·  GRIP  ·  Cue &amp; Reading</span>
+    </header>
+    <p class="cue-label">CUE (EN)</p>
+    <blockquote class="cue-en">"Master-coach focus: Grip / forearm rotation / racket face angle (FH-BH combo systems)"</blockquote>
+    <p class="cue-label">CUE (VI)</p>
+    <blockquote class="cue-vi">""</blockquote>
+    <h3 class="block-h3">What the diagram is saying</h3>
+    <ul class="block-bullets"><li>Diagrammatic illustration: Grip / forearm rotation / racket face angle (FH-BH combo systems)</li></ul>
+  </div>
+</section>
+
+
+<section class="page why-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 3  ·  GRIP  ·  Sources</span>
+    </header>
+    <h3 class="block-h3">Practical Instructions <span class="vi-label">(Hướng Dẫn Thực Hành)</span></h3><p class="md-quote md-instruction">1. Cầm vợt lỏng — không quá chặt (hold loose, not too tight) — 3-4/10 grip pressure.</p><p class="md-quote md-instruction md-instruction-vi">1. Cầm vợt lỏng — không quá chặt — 3-4/10 áp lực grip.</p><p class="md-quote md-instruction">2. Siết chỉ khi chạm bóng (squeeze only at contact) — 7-8/10, then release immediately.</p><p class="md-quote md-instruction md-instruction-vi">2. Siết chỉ khi chạm bóng — 7-8/10, rồi thả ngay.</p><p class="md-quote md-instruction">3. Cán vợt phải trượt nhẹ trong lòng bàn tay (handle slides slightly in palm) for adjustments.</p><p class="md-quote md-instruction md-instruction-vi">3. Cán vợt phải trượt nhẹ trong lòng bàn tay để điều chỉnh.</p><p class="md-quote md-instruction">4. Càng kín càng tốt để tránh bị rò — but tight only at contact, not during prep.</p><p class="md-quote md-instruction md-instruction-vi">4. Càng kín càng tốt để tránh rò — nhưng chỉ chặt ở tiếp xúc, không trong prep.</p><p class="md-quote md-instruction">5. Switch grip ở lưới (switch grip at net) — practice the transition between grip types.</p><p class="md-quote md-instruction md-instruction-vi">5. Switch grip ở lưới — tập chuyển tiếp giữa các loại grip.</p></div>
+</section>
+
+
+<section class="page image-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 4  ·  GRIP  ·  Image &amp; Caption</span>
+    </header>
+    <div class="image-wrap">
+      <img src="file:///C:/Users/Henry/Pictures/My%20Notes/Gemini%20Vi/Gemini_Generated_Image_lwqmiulwqmiulwqm.png" alt="Palm Up" loading="eager">
+    </div>
+    <div class="image-caption-block">
+      <p class="card-title-en"><b>EN:</b> Palm Up</p>
+      
+      <p class="quality-line">Quality: 4/5 (vision-QA, June 2026) ·
+        Path: <i>Gemini_Generated_Image_lwqmiulwqmiulwqm.png</i></p>
+      <p class="caption-line">Palm Up / Palm Down racket face control + kinematic chain + volley</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="page cue-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 4  ·  GRIP  ·  Cue &amp; Reading</span>
+    </header>
+    <p class="cue-label">CUE (EN)</p>
+    <blockquote class="cue-en">"Master-coach focus: Palm Up / Palm Down racket face control + kinematic chain + volley"</blockquote>
+    <p class="cue-label">CUE (VI)</p>
+    <blockquote class="cue-vi">""</blockquote>
+    <h3 class="block-h3">What the diagram is saying</h3>
+    <ul class="block-bullets"><li>Diagrammatic illustration: Palm Up / Palm Down racket face control + kinematic chain + volley</li></ul>
+  </div>
+</section>
+
+
+<section class="page why-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">Card 4  ·  GRIP  ·  Sources</span>
+    </header>
+    <h3 class="block-h3">Practical Instructions <span class="vi-label">(Hướng Dẫn Thực Hành)</span></h3><p class="md-quote md-instruction">1. Forehand: palm up at contact — the palm knows where the ball goes.</p><p class="md-quote md-instruction md-instruction-vi">1. Forehand: lòng bàn tay lên ở tiếp xúc — lòng bàn tay biết bóng đi đâu.</p><p class="md-quote md-instruction">2. Paddle analogy: a paddle has a face, the palm IS the face of the racket.</p><p class="md-quote md-instruction md-instruction-vi">2. Phép so sánh mái chèo: mái chèo có mặt, lòng bàn tay chính là mặt của vợt.</p><p class="md-quote md-instruction">3. Vertical palm = neutral position — default starting point for any shot.</p><p class="md-quote md-instruction md-instruction-vi">3. Lòng bàn tay dọc = vị trí trung tính — điểm bắt đầu mặc định cho mọi cú.</p><p class="md-quote md-instruction">4. Tilt palm up = open face = lift the ball (topspin). Tilt palm down = closed face = drive.</p><p class="md-quote md-instruction md-instruction-vi">4. Nghiêng lòng bàn tay lên = mặt mở = nâng bóng (topspin). Xuống = mặt đóng = đập.</p><p class="md-quote md-instruction">5. Backhand: palm down at contact — same logic, opposite face angle.</p><p class="md-quote md-instruction md-instruction-vi">5. Backhand: lòng bàn tay xuống ở tiếp xúc — cùng logic, góc mặt vợt ngược lại.</p></div>
+</section>
+
+
+<section class="page summary-page">
+  <div class="page-inner">
+    <header class="page-header">
+      <span class="page-label">GRIP  ·  Summary</span>
+    </header>
+    <h2 class="page-h2">3 takeaway cuối</h2>
+    <ol class="takeaway-list"><li>(1) Grip sống, không phải grip chết. Lỏng khi chuẩn bị (3-4/10), siết chỉ khi tiếp xúc (7-8/10). Cán vợt phải trượt nhẹ trong lòng bàn tay.</li><li>(2) Grip quyết định điểm chạm. Western (trên) = topspin, Continental (dưới) = slice.</li><li>(3) Finger power: lực chính đến từ ngón trỏ + ngón cái. Lòng bàn tay ôm 360°, không có khe hở → không leak lực.</li></ol>
+    <h2 class="page-h2">Drills tham khảo (20-min practice)</h2>
+    <ol class="drill-list"><li>5 phút Grip squeeze: cầm vợt lỏng 3-4/10 trong 5 giây → siết 7-8/10 trong 1 giây → lỏng lại. Lặp 20 lần.</li><li>5 phút Switch grip ở lưới: volley Continental → cú topspin Semi-Western → quay lại Continental. Tập cổ tay xoay.</li><li>5 phút Shadow forehand với grip awareness: mỗi cú, nói to grip đang dùng (Eastern/Semi-Western/Western).</li><li>5 phút 1Hto2H switch grip drill: 1H với Continental grip → đổi sang 2H (cả 2 tay Continental). Bóng chậm từ basket.</li></ol>
+    
+  </div>
+</section>
+<section class="page end-page">
+  <div class="page-inner">
+    <h3 class="end-h3">End of GRIP</h3>
+    <p class="end-line">Henry Pham · Visual Coaching Library · Pilot Series · June 2026</p>
+  </div>
+</section>
+
+    </div>
+  </div>
+</main>
+
+<footer class="bar">
+  Click page edge  ·  or use <kbd>←</kbd> <kbd>→</kbd> arrow keys  ·  <kbd>Home</kbd>/<kbd>End</kbd> jump  ·  <kbd>P</kbd> print
+</footer>
+
+<script>
+(function() {
+  const host = document.getElementById('page-host');
+  const strip = document.getElementById('strip');
+  const progressEl = document.getElementById('progress');
+  const stage = document.querySelector('main.stage');
+
+  // Move all .page children out of the host into the strip in order.
+  const pages = Array.from(host.querySelectorAll('.page'));
+  pages.forEach((p) => strip.appendChild(p));
+  host.remove();
+
+  const total = pages.length;
+  // We move by 2 pages per step (one "spread").
+  const totalSpreads = Math.ceil(total / 2);
+  let spread = 0;  // 0-indexed
+
+  // Compute viewport to horizontally center the current spread.
+  function recenter() {
+    const stageW = stage.clientWidth;
+    const pageW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--page-w'));
+    const visible = 2 * pageW;
+    // Strip is laid out with each page at x = i * pageW. The current
+    // spread spans [spread * visible, (spread+1) * visible] in strip coords.
+    // Its center sits at (spread + 0.5) * visible.
+    // We translateX so that point lands at stageW/2.
+    let translate = (stageW / 2) - (spread + 0.5) * visible;
+    // Clamp: don't allow positive translate (would expose empty space on left)
+    if (translate > 0) translate = 0;
+    // Don't allow the strip's right edge to go further left than stageW.
+    const stripTotalW = total * pageW;
+    const minTranslate = stageW - stripTotalW;
+    if (translate < minTranslate) translate = minTranslate;
+    strip.style.transform = `translateX(${translate}px)`;
+    const p1 = spread * 2 + 1;
+    const p2 = Math.min(spread * 2 + 2, total);
+    progressEl.textContent = `Spread ${spread + 1} of ${totalSpreads} (page ${p1}-${p2})`;
+  }
+
+  function flipNext() {
+    if (spread >= totalSpreads - 1) return;
+    spread++;
+    recenter();
+  }
+  function flipPrev() {
+    if (spread <= 0) return;
+    spread--;
+    recenter();
+  }
+  function jumpFirst() { spread = 0; recenter(); }
+  function jumpLast()  { spread = totalSpreads - 1; recenter(); }
+
+  document.getElementById('btn-prev').addEventListener('click', flipPrev);
+  document.getElementById('btn-next').addEventListener('click', flipNext);
+  document.getElementById('btn-start').addEventListener('click', jumpFirst);
+  document.getElementById('btn-end').addEventListener('click', jumpLast);
+  document.getElementById('btn-print').addEventListener('click', () => window.print());
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { flipNext(); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { flipPrev(); e.preventDefault(); }
+    else if (e.key === 'Home') { jumpFirst(); e.preventDefault(); }
+    else if (e.key === 'End') { jumpLast(); e.preventDefault(); }
+    else if (e.key.toLowerCase() === 'p') { window.print(); }
+  });
+
+  // Click on right edge of book flips forward; left edge flips back.
+  stage.addEventListener('click', (e) => {
+    const rect = stage.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    if (x > rect.width * 0.85) flipNext();
+    else if (x < rect.width * 0.15) flipPrev();
+  });
+
+  window.addEventListener('resize', recenter);
+  recenter();
+})();
+</script>
+
+</body>
+</html>

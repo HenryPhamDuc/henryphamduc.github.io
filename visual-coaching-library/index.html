@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visual Coaching Library — Henry Phạm Đức</title>
+  <meta name="description" content="Bilingual EN-VI tennis coaching flipbook. 46 cards across 11 topics with 5 practical instructions per image, sourced from MD notes and tennis biomechanics research." />
+  <meta name="author" content="Henry Pham Duc" />
+  <meta property="og:title" content="Visual Coaching Library — Henry Phạm Đức" />
+  <meta property="og:description" content="Bilingual EN-VI tennis coaching flipbook. 46 cards, 230 instructions, master + per-topic editions." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='52' font-size='52'%3E%F0%9F%93%96%3C/text%3E%3C/svg%3E" />
+  <style>
+    :root {
+      --ink: #1a202c;
+      --paper: #fafaf9;
+      --accent: #5a8a5e;
+      --accent-soft: #f0f9f4;
+      --vi-accent: #d4a574;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', 'Segoe UI', -apple-system, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+    header {
+      background: white;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 24px 0;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+    .brand-mark {
+      width: 48px; height: 48px;
+      background: var(--accent);
+      color: white;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 18px;
+    }
+    .brand-name { font-size: 18px; font-weight: 600; }
+    .brand-sub { font-size: 13px; color: #666; }
+    .hero {
+      padding: 64px 0 48px;
+      text-align: center;
+    }
+    .hero-eyebrow {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      font-weight: 600;
+      margin: 0 0 16px;
+    }
+    h1 {
+      font-size: 48px;
+      line-height: 1.1;
+      margin: 0 0 16px;
+      font-weight: 800;
+    }
+    .hero-lede {
+      font-size: 18px;
+      color: #444;
+      max-width: 720px;
+      margin: 0 auto 16px;
+    }
+    .vi-label {
+      display: block;
+      font-style: italic;
+      color: var(--vi-accent);
+      font-size: 17px;
+      margin-top: 8px;
+    }
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin: 40px 0;
+      flex-wrap: wrap;
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat-num {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--accent);
+      display: block;
+    }
+    .stat-label {
+      font-size: 13px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .cta-row {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 40px 0 0;
+    }
+    .cta {
+      display: inline-block;
+      padding: 14px 28px;
+      background: var(--accent);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 15px;
+      transition: background 0.2s;
+    }
+    .cta:hover { background: #3d6840; }
+    .cta.secondary {
+      background: white;
+      color: var(--accent);
+      border: 2px solid var(--accent);
+    }
+    .topics {
+      padding: 64px 0;
+    }
+    .topics h2 {
+      font-size: 32px;
+      text-align: center;
+      margin: 0 0 40px;
+    }
+    .topic-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .topic-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 24px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .topic-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+    .topic-card h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+    .topic-card .icon {
+      font-size: 24px;
+      margin-right: 8px;
+    }
+    .topic-card p {
+      margin: 0 0 16px;
+      color: #666;
+      font-size: 14px;
+    }
+    .topic-card a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 14px;
+    }
+    .topic-card a:hover { text-decoration: underline; }
+    footer {
+      background: #1a202c;
+      color: #f3f4f6;
+      padding: 40px 0;
+      text-align: center;
+      margin-top: 80px;
+    }
+    footer p { margin: 0 0 8px; font-size: 14px; }
+    footer .vi { color: #d4a574; font-style: italic; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <a href="../" class="brand">
+      <span class="brand-mark">HPĐ</span>
+      <span class="brand-text">
+        <span class="brand-name">Henry Phạm Đức</span>
+        <span class="brand-sub">Tennis · Tai Chi · Research</span>
+      </span>
+    </a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <p class="hero-eyebrow">Visual Coaching Library · Thư Viện Hình Ảnh Huấn Luyện</p>
+    <h1>Bilingual tennis coaching<br />flipbook — 46 cards, 11 topics.</h1>
+    <p class="hero-lede">
+      Each card pairs a high-quality biomechanics or tactics diagram with 5 numbered practical instructions in English, with Vietnamese translation under each.
+      <span class="vi-label">Mỗi thẻ ghép một sơ đồ sinh học/chiến thuật chất lượng cao với 5 hướng dẫn thực hành có đánh số bằng tiếng Anh, kèm bản dịch tiếng Việt bên dưới.</span>
+    </p>
+
+    <div class="stats">
+      <div class="stat"><span class="stat-num">46</span><span class="stat-label">Cards · Thẻ</span></div>
+      <div class="stat"><span class="stat-num">11</span><span class="stat-label">Topics · Chủ đề</span></div>
+      <div class="stat"><span class="stat-num">230</span><span class="stat-label">Instructions EN+VI · Hướng dẫn</span></div>
+      <div class="stat"><span class="stat-num">1</span><span class="stat-label">Master Edition · Bản tổng hợp</span></div>
+    </div>
+
+    <div class="cta-row">
+      <a href="flipbook-master.html" class="cta">Open Master Edition (all 46 cards) · Mở bản tổng hợp</a>
+      <a href="#topics" class="cta secondary">Browse by topic · Xem theo chủ đề</a>
+    </div>
+  </div>
+</section>
+
+<section class="topics" id="topics">
+  <div class="container">
+    <h2>Topics · Chủ đề</h2>
+    <div class="topic-grid">
+
+      <div class="topic-card">
+        <h3><span class="icon">🎾</span>Forehand · Forehand</h3>
+        <p>7 cards — modern anatomy, foot config, compact stroke, wrist, contact, slingshot grip. <span class="vi-label">7 thẻ — giải phẫu hiện đại, chân, compact, cổ tay, tiếp xúc, sling-shot.</span></p>
+        <a href="flipbook-forehand.html">Open · Mở →</a>
+      </div>
+
+      <div class="topic-card">
+        <h3><span class="icon">🎾</span>Backhand · Backhand</h3>
+        <p>3 cards — mechanics, 1H→2H switch, integrated arm-racket. <span class="vi-label">3 thẻ — cơ học, chuyển 1H→2H, cánh tay-vợt hợp nhất.</span></p>
+        <a href="flipbook-backhand.html">Open · Mở →</a>
+      </div>
+
+      <div class="topic-card">
+        <h3><span class="icon">⚡</span>Serve · Giao bóng</h3>
+        <p>4 cards — L.A.R. phases, elbow 3D path, controlled falling, ulnar deviation. <span class="vi-label">4 thẻ — L.A.R., quỹ đạo khuỷu, rơi có kiểm soát, ulnar deviation.</span></p>
+        <a href="flipbook-serve.html">Open · Mở →</a>
+      </div>
+
+      <div class="topic-card">
+        <h3><span class="icon">🏸</span>Volley · Volley</h3>
+        <p>4 cards — less-is-more blueprint, Jamie Murray drills, tension integrity, palm control. <span class="vi-label">4 thẻ — less-is-more, bài tập Jamie Murray, căng-nguyên vẹn, palm.</span></p>
+        <a href="flipbook-volley.html">Open · Mở →</a>
+      </div>
+
+      <div class="topic-card">
+        <h3><span class="icon">🦶</span>Footwork · Bước chân</h3>
+        <p>5 cards — 90° stance, ready stance, stance types, split step, racket prep. <span class="vi-label">5 thẻ — stance 90°, tư thế sẵn sàng, các stance, split step, prep vợt.</span></p>
+        <a href="flipbook-footwork.html">Open · Mở →</a>
+      </div>
+
+      <div class="topic-card">
+        <h3><span class="icon">🤚</span>Grip · Cách cầm vợt</h3>
+        <p>4 cards — slingshot, grip types vs shot quality, OK grip drill, palm direction. <span class="vi-label">4 thẻ — sling-shot, grip theo cú, OK grip, hướng lòng bàn tay.</span></p>
+        <a href="flipbook-grip.html">Open · Mở →</a>
+      </div>
+
+      <div class="topic-card">
+        <h3><span class="icon">🧬</span>Biomechanics · Cơ sinh học</h3>
+        <p>5 cards — ball tracking, modern mechanics, tension integrity, kinetic chain, 5-phase. <span class="vi-label">5 thẻ — theo dõi bóng, cơ học hiện đại, căng, chuỗi động học, 5 pha.</span></p>
+        <a href="flipbook-biomechanics.html">Open · Mở →</a>
+      </div>
+
+      <div class="topic-card">
+        <h3><span class="icon">🧠</span>Strategy · Chiến thuật</h3>
+        <p>5 cards — sensory anticipation, future champion, shot disguise, defensive jump, aerial rotation. <span class="vi-label">5 thẻ — dự đoán, nhà vô địch tương lai, che giấu, nhảy phòng thủ, xoay trên không.</span></p>
+        <a href="flipbook-strategy.html">Open · Mở →</a>
+      </div>
+
+      <div class="topic-card">
+        <h3><span class="icon">🌐</span>Multi-topic · Đa chủ đề</h3>
+        <p>5 cards — master overview, future champion, BMR model, posture, feed-forward. <span class="vi-label">5 thẻ — tổng quan, nhà vô địch, BMR, tư thế, feed-forward.</span></p>
+        <a href="flipbook-multi-topic.html">Open · Mở →</a>
+      </div>
+
+      <div class="topic-card">
+        <h3><span class="icon">📐</span>Forehand V2 · Forehand V2</h3>
+        <p>2 cards — OK grip & passive lag, embodied neural control. <span class="vi-label">2 thẻ — OK grip và lag thụ động, nhập thể thần kinh.</span></p>
+        <a href="flipbook-forehand_v2.html">Open · Mở →</a>
+      </div>
+
+      <div class="topic-card">
+        <h3><span class="icon">📚</span>Volley V2 · Volley V2</h3>
+        <p>2 cards — common mistakes & fixes, coil styles (side-bend vs straight). <span class="vi-label">2 thẻ — lỗi thường gặp & sửa, kiểu xoắn.</span></p>
+        <a href="flipbook-volley_v2.html">Open · Mở →</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 Phạm Đức Hải · Nghiên cứu Tennis & Taichi · Mọi nội dung chỉ phục vụ mục đích giáo dục.</p>
+  <p class="vi">All content is for educational purposes only · Compiled by Henry Phạm Đức</p>
+  <p><a href="../" style="color:#d4a574;">← Back to main site · Về trang chính</a></p>
+</footer>
+
+</body>
+</html>
