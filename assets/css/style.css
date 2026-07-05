@@ -77,12 +77,10 @@ a:hover { color: var(--teal-dark); text-decoration: underline; text-underline-of
 .nav { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; }
 .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text); }
 .brand:hover { text-decoration: none; }
-.brand-mark {
-  width: 40px; height: 40px;
-  background: var(--navy); color: #fff;
-  display: grid; place-items: center;
-  border-radius: 8px; font-weight: 700; font-size: 14px; letter-spacing: .5px;
-  font-family: var(--font-vi);
+.brand-logo {
+  height: 40px;
+  width: auto;
+  display: block;
 }
 .brand-text { display: flex; flex-direction: column; line-height: 1.1; }
 .brand-name { font-size: 16px; font-weight: 700; }
