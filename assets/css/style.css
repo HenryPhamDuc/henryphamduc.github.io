@@ -319,18 +319,7 @@ a:hover { color: var(--teal-dark); text-decoration: underline; text-underline-of
 }
 .domain-extra p { color: var(--text-muted); }
 
-/* Inline logo row (used under Bio and inside Tennis "Where I write" block) */
-.bio-logo-row {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 24px 16px 8px;
-}
-.bio-logo {
-  max-height: 160px;
-  width: auto;
-  display: block;
-}
+/* Inline logo row (used under each domain-sub) */
 .domain-logo-row {
   display: flex;
   justify-content: center;
