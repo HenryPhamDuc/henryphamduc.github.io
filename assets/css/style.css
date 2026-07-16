@@ -318,6 +318,32 @@ a:hover { color: var(--teal-dark); text-decoration: underline; text-underline-of
   color: var(--text);
 }
 .domain-extra p { color: var(--text-muted); }
+
+/* Inline logo row (used under Bio and inside Tennis "Where I write" block) */
+.bio-logo-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px 16px 8px;
+}
+.bio-logo {
+  max-height: 160px;
+  width: auto;
+  display: block;
+}
+.domain-logo-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border);
+}
+.domain-logo {
+  max-height: 120px;
+  width: auto;
+  display: block;
+}
 .link-list { list-style: none; padding: 0; }
 .link-list li {
   padding: 12px 0;
