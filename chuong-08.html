@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chương 8: LangChain & Orchestration — AI Thực Chiến</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #e94560;
+            --text: #eaeaea;
+            --text-muted: #a0a0a0;
+            --card-bg: #1f2a44;
+            --border: #2d3a5a;
+            --gold: #d4a843;
+            --code-bg: #0d1117;
+            --code-text: #e6edf3;
+        }
+        @font-face { font-family: 'VNTime'; src: local('Times New Roman'), local('Georgia'), local('serif'); }
+        body { font-family: 'VNTime', Georgia, serif; background: var(--primary); color: var(--text); line-height: 1.8; }
+        .container { max-width: 850px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+        header { margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+        .breadcrumbs { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem; }
+        .breadcrumbs a { color: var(--accent); text-decoration: none; }
+        .breadcrumbs a:hover { text-decoration: underline; }
+        h1 { font-size: 2rem; color: var(--gold); margin-bottom: 0.5rem; }
+        .chapter-meta { color: var(--text-muted); font-size: 0.95rem; }
+        main article { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 2.5rem; }
+        h2 { color: var(--gold); font-size: 1.5rem; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+        h3 { color: var(--accent); font-size: 1.2rem; margin: 1.5rem 0 0.75rem; }
+        h4 { color: var(--text); font-size: 1.05rem; margin: 1rem 0 0.5rem; }
+        p { margin-bottom: 1rem; text-align: justify; }
+        code { font-family: 'Fira Code', 'Consolas', monospace; background: var(--code-bg); color: #ff7b72; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.9em; }
+        pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; overflow-x: auto; margin: 1.5rem 0; position: relative; }
+        pre code { background: none; padding: 0; color: var(--code-text); font-size: 0.85rem; line-height: 1.6; display: block; }
+        .copy-btn { position: absolute; top: 0.75rem; right: 0.75rem; background: var(--accent); border: none; color: white; padding: 0.35rem 0.75rem; border-radius: 4px; cursor: pointer; font-size: 0.75rem; opacity: 0; transition: opacity 0.2s; }
+        pre:hover .copy-btn { opacity: 1; }
+        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+        th, td { border: 1px solid var(--border); padding: 0.75rem; text-align: left; }
+        th { background: var(--secondary); color: var(--gold); font-weight: 600; }
+        tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+        ul, ol { margin: 1rem 0 1rem 1.5rem; }
+        li { margin-bottom: 0.4rem; }
+        blockquote { border-left: 3px solid var(--accent); padding-left: 1rem; margin: 1.5rem 0; color: var(--text-muted); font-style: italic; }
+        .nav-links { display: flex; justify-content: space-between; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+        .nav-links a { color: var(--accent); text-decoration: none; font-weight: 500; padding: 0.5rem 1rem; border: 1px solid var(--accent); border-radius: 6px; transition: all 0.2s; }
+        .nav-links a:hover { background: var(--accent); color: white; }
+        footer { text-align: center; margin-top: 3rem; color: var(--text-muted); font-size: 0.85rem; }
+        @media (max-width: 600px) { article { padding: 1.5rem; } h1 { font-size: 1.6rem; } h2 { font-size: 1.3rem; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <nav class="breadcrumbs"><a href="index.html">🏠 Trang chủ</a> / <span>Chương 8</span></nav>
+        <h1>Chương 8: LangChain & Orchestration</h1>
+        <p class="chapter-meta">LangChain & Orchestration</p>
+    </header>
+
+    <main>
+        <article id="content">
+        <h1>CHƯƠNG 8: LANGCHAIN VÀ ORCHESTRATION FRAMEWORKS</h1><h2>Giới thiệu chương</h2><p>LangChain, LlamaIndex, và các orchestration frameworks giúp kỹ sư xây dựng AI applications phức tạp nhanh hơn bằng cách cung cấp abstractions sẵn có cho chains, agents, memory, và retrieval. Chương này đi từ "tự làm" sang "dùng framework" và biết khi nào nên dùng gì.</p><hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0;"><h2>8.1 LangChain Overview</h2><h3>8.1.1 Tại sao cần Framework?</h3><pre><code class="language-python"># KHÔNG có framework: Phải tự handle mọi thứ
+def manual_rag_chain(question, documents):
+    # Embed question
+    q_emb = embed(question)
+    # Search
+    docs = vector_search(q_emb)
+    # Format prompt
+    prompt = format_rag_prompt(question, docs)
+    # Call LLM
+    response = call_llm(prompt)
+    # Parse output
+    return parse_response(response)
+
+# VỚI LangChain: Declarative, composable
+from langchain.chains import RetrievalQA
+chain = RetrievalQA.from_chain_type(
+    llm=llm, retriever=vectorstore.as_retriever()
+)
+result = chain.invoke({"query": question})
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><h3>8.1.2 Core Concepts</h3><pre><code class="language-python">from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_anthropic import ChatAnthropic
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
+from langchain_core.runnables import RunnablePassthrough, RunnableLambda
+from langchain_community.vectorstores import Chroma
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.document_loaders import (
+    PyPDFLoader, TextLoader, WebBaseLoader, CSVLoader
+)
+
+# 1. MODELS
+claude = ChatAnthropic(model="claude-3-5-sonnet-20241022")
+gpt4 = ChatOpenAI(model="gpt-4o")
+
+# 2. PROMPTS
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "Bạn là {role}. Trả lời bằng tiếng Việt."),
+    ("human", "{question}")
+])
+
+# 3. OUTPUT PARSERS
+str_parser = StrOutputParser()
+json_parser = JsonOutputParser()
+
+# 4. CHAINS (LCEL - LangChain Expression Language)
+basic_chain = prompt | claude | str_parser
+
+# Invoke
+result = basic_chain.invoke({
+    "role": "Python expert",
+    "question": "Giải thích decorators"
+})
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0;"><h2>8.2 LCEL: LangChain Expression Language</h2><pre><code class="language-python"># LCEL là pipe operator (|) để chain components
+
+# Simple chain
+chain = prompt | llm | StrOutputParser()
+
+# Branch: RunnablePassthrough để giữ original input
+from langchain_core.runnables import RunnableParallel
+
+parallel_chain = RunnableParallel(
+    answer=prompt | llm | StrOutputParser(),
+    question=RunnablePassthrough()
+)
+
+result = parallel_chain.invoke({"question": "What is Python?"})
+# result = {"answer": "Python is...", "question": "What is Python?"}
+
+# Sequence với transformation
+def format_docs(docs):
+    return "\n\n".join(doc.page_content for doc in docs)
+
+rag_chain = (
+    {
+        "context": retriever | format_docs,
+        "question": RunnablePassthrough()
+    }
+    | prompt
+    | llm
+    | StrOutputParser()
+)
+
+# Conditional routing
+from langchain_core.runnables import RunnableBranch
+
+def classify_question(question):
+    if any(kw in question.lower() for kw in ["code", "python", "bug"]):
+        return "technical"
+    return "general"
+
+branch = RunnableBranch(
+    (lambda x: classify_question(x["question"]) == "technical", technical_chain),
+    general_chain  # Default
+)
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0;"><h2>8.3 Document Loaders và Text Splitters</h2><pre><code class="language-python">from langchain_community.document_loaders import (
+    PyPDFLoader, TextLoader, WebBaseLoader,
+    GitLoader, NotionDBLoader, SlackDirectoryLoader
+)
+from langchain.text_splitter import (
+    RecursiveCharacterTextSplitter,
+    TokenTextSplitter,
+    MarkdownHeaderTextSplitter
+)
+
+# PDF Loading
+def load_pdf(pdf_path: str):
+    loader = PyPDFLoader(pdf_path)
+    pages = loader.load()
+    print(f"Loaded {len(pages)} pages")
+    return pages
+
+# Web Loading
+def load_website(url: str):
+    loader = WebBaseLoader(url)
+    docs = loader.load()
+    return docs
+
+# Splitting
+def split_documents(documents, chunk_size=500, overlap=50):
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=overlap,
+        separators=["\n\n", "\n", ". ", " ", ""]
+    )
+    splits = splitter.split_documents(documents)
+    print(f"Split into {len(splits)} chunks")
+    return splits
+
+# Markdown-aware splitting
+md_splitter = MarkdownHeaderTextSplitter(
+    headers_to_split_on=[
+        ("#", "header1"),
+        ("##", "header2"),
+        ("###", "header3"),
+    ]
+)
+
+# Full ingestion pipeline
+def ingest_documents(sources: List[str]) -> Chroma:
+    all_docs = []
+    
+    for source in sources:
+        if source.endswith(".pdf"):
+            docs = load_pdf(source)
+        elif source.startswith("http"):
+            docs = load_website(source)
+        else:
+            loader = TextLoader(source)
+            docs = loader.load()
+        all_docs.extend(docs)
+    
+    splits = split_documents(all_docs)
+    
+    embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+    vectorstore = Chroma.from_documents(
+        documents=splits,
+        embedding=embeddings,
+        persist_directory="./chroma_db"
+    )
+    
+    return vectorstore
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0;"><h2>8.4 Memory và Conversation History</h2><pre><code class="language-python">from langchain.memory import (
+    ConversationBufferMemory,
+    ConversationBufferWindowMemory,
+    ConversationSummaryMemory,
+    ConversationSummaryBufferMemory
+)
+from langchain.chains import ConversationChain
+
+# Buffer Memory: Giữ toàn bộ history
+buffer_memory = ConversationBufferMemory(
+    memory_key="chat_history",
+    return_messages=True
+)
+
+# Window Memory: Chỉ giữ N messages cuối
+window_memory = ConversationBufferWindowMemory(
+    k=5,  # Giữ 5 pairs
+    memory_key="chat_history",
+    return_messages=True
+)
+
+# Summary Memory: Summarize cũ, giữ mới
+summary_memory = ConversationSummaryMemory(
+    llm=claude,
+    memory_key="chat_history",
+    return_messages=True
+)
+
+# Summary + Buffer: Best of both worlds
+smart_memory = ConversationSummaryBufferMemory(
+    llm=claude,
+    max_token_limit=2000,  # Summary nếu > 2000 tokens
+    memory_key="chat_history",
+    return_messages=True
+)
+
+# Conversation chain với memory
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+
+prompt_with_memory = ChatPromptTemplate.from_messages([
+    ("system", "Bạn là helpful assistant. Nhớ context của conversation."),
+    MessagesPlaceholder(variable_name="chat_history"),
+    ("human", "{input}")
+])
+
+chain_with_memory = prompt_with_memory | claude | StrOutputParser()
+
+# Sử dụng
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_community.chat_message_histories import ChatMessageHistory
+
+store = {}
+
+def get_session_history(session_id: str):
+    if session_id not in store:
+        store[session_id] = ChatMessageHistory()
+    return store[session_id]
+
+chain_with_history = RunnableWithMessageHistory(
+    chain_with_memory,
+    get_session_history,
+    input_messages_key="input",
+    history_messages_key="chat_history"
+)
+
+# Session-based conversations
+config_user1 = {"configurable": {"session_id": "user_001"}}
+response1 = chain_with_history.invoke({"input": "Tôi tên là Minh"}, config=config_user1)
+response2 = chain_with_history.invoke({"input": "Tên tôi là gì?"}, config=config_user1)
+# response2 sẽ nhớ "Minh"
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0;"><h2>8.5 LangChain Agents</h2><pre><code class="language-python">from langchain.agents import create_tool_calling_agent, AgentExecutor
+from langchain.tools import tool
+from langchain_community.tools import DuckDuckGoSearchRun
+from langchain_community.utilities import WikipediaAPIWrapper
+
+# Define custom tools
+@tool
+def calculate(expression: str) -> str:
+    """Tính toán biểu thức toán học Python an toàn.
+    Input: biểu thức Python như '2 + 2' hoặc 'sum([1,2,3])'
+    """
+    try:
+        # Restricted eval - chỉ cho phép math operations
+        allowed_names = {
+            "abs": abs, "round": round, "sum": sum,
+            "min": min, "max": max, "len": len
+        }
+        result = eval(expression, {"__builtins__": {}}, allowed_names)
+        return str(result)
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+@tool
+def search_web(query: str) -> str:
+    """Tìm kiếm thông tin hiện tại trên internet.
+    Dùng khi cần thông tin mới hoặc real-time data.
+    """
+    search = DuckDuckGoSearchRun()
+    return search.run(query)
+
+@tool  
+def query_database(sql_query: str) -> str:
+    """Chạy SQL query read-only trên analytics database.
+    Chỉ SELECT statements. Tables: sales, users, products.
+    """
+    import sqlite3
+    # Mock database
+    conn = sqlite3.connect(":memory:")
+    # ... setup mock data
+    try:
+        cursor = conn.execute(sql_query)
+        results = cursor.fetchall()
+        return str(results[:20])  # Limit results
+    except Exception as e:
+        return f"SQL Error: {str(e)}"
+
+# Create agent
+tools = [calculate, search_web, query_database]
+
+agent_prompt = ChatPromptTemplate.from_messages([
+    ("system", """Bạn là helpful data analyst với quyền truy cập database và internet.
+    Sử dụng tools khi cần thiết để trả lời chính xác nhất."""),
+    MessagesPlaceholder("chat_history", optional=True),
+    ("human", "{input}"),
+    MessagesPlaceholder("agent_scratchpad"),
+])
+
+agent = create_tool_calling_agent(claude, tools, agent_prompt)
+executor = AgentExecutor(
+    agent=agent,
+    tools=tools,
+    verbose=True,  # Show reasoning
+    max_iterations=10,
+    handle_parsing_errors=True
+)
+
+# Run
+result = executor.invoke({
+    "input": "Tổng doanh thu tháng 11/2024 là bao nhiêu? So sánh với tháng trước."
+})
+print(result["output"])
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0;"><h2>8.6 LlamaIndex</h2><pre><code class="language-python">"""
+LlamaIndex vs LangChain:
+- LlamaIndex: Chuyên về data indexing và retrieval (RAG focused)
+- LangChain: Tổng quát hơn (chains, agents, memory, tools)
+
+Dùng LlamaIndex khi: Cần RAG phức tạp, structured data
+Dùng LangChain khi: Cần agents, memory, complex workflows
+"""
+
+from llama_index.core import VectorStoreIndex, Document, Settings
+from llama_index.core.node_parser import SentenceSplitter
+from llama_index.llms.anthropic import Anthropic as LlamaAnthropic
+from llama_index.embeddings.openai import OpenAIEmbedding
+from llama_index.core.query_engine import RetrieverQueryEngine
+from llama_index.core.retrievers import VectorIndexRetriever
+from llama_index.core.postprocessor import SimilarityPostprocessor
+
+# Setup
+Settings.llm = LlamaAnthropic(model="claude-3-5-sonnet-20241022")
+Settings.embed_model = OpenAIEmbedding(model="text-embedding-3-small")
+Settings.node_parser = SentenceSplitter(chunk_size=512, chunk_overlap=20)
+
+# Build index
+def build_llamaindex(documents_text: List[str]) -> VectorStoreIndex:
+    docs = [Document(text=text) for text in documents_text]
+    index = VectorStoreIndex.from_documents(docs, show_progress=True)
+    return index
+
+# Advanced query engine
+def create_advanced_query_engine(index):
+    retriever = VectorIndexRetriever(
+        index=index,
+        similarity_top_k=5
+    )
+    
+    postprocessors = [
+        SimilarityPostprocessor(similarity_cutoff=0.7)
+    ]
+    
+    query_engine = RetrieverQueryEngine(
+        retriever=retriever,
+        node_postprocessors=postprocessors
+    )
+    
+    return query_engine
+
+# Sub-question query engine (cho multi-document)
+from llama_index.core.query_engine import SubQuestionQueryEngine
+from llama_index.core.tools import QueryEngineTool
+
+def multi_document_qa(document_sets: Dict[str, List[str]]) -> SubQuestionQueryEngine:
+    """
+    Tự động chia câu hỏi phức tạp thành sub-questions,
+    query từng document set, tổng hợp câu trả lời
+    """
+    tools = []
+    
+    for name, docs in document_sets.items():
+        index = build_llamaindex(docs)
+        engine = index.as_query_engine()
+        
+        tool = QueryEngineTool.from_defaults(
+            query_engine=engine,
+            name=name,
+            description=f"Tìm kiếm trong {name}"
+        )
+        tools.append(tool)
+    
+    return SubQuestionQueryEngine.from_defaults(query_engine_tools=tools)
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0;"><h2>8.7 Khi nào dùng Framework vs Custom</h2><pre><code class="language-python">"""
+USE FRAMEWORK WHEN:
+✅ Rapid prototyping cần
+✅ Standard use cases (RAG, chatbot, agent)
+✅ Team không quen AI deep internals
+✅ Need built-in integrations (100+ connectors)
+✅ Production deadline gần
+
+BUILD CUSTOM WHEN:
+✅ Performance critical (framework overhead)
+✅ Non-standard architecture
+✅ Fine-grained control cần
+✅ Debugging dễ hơn với custom code
+✅ Minimal dependencies preferred
+
+HYBRID (BEST PRACTICE):
+✅ Dùng framework cho boilerplate
+✅ Custom cho business logic
+✅ Override framework components khi cần
+"""
+
+# Hybrid example: Custom retrieval + LangChain chain
+class CustomRetriever:
+    """Custom retriever với business logic"""
+    
+    def get_relevant_documents(self, query: str):
+        # Custom retrieval với business rules
+        docs = hybrid_search(query)
+        docs = apply_access_control(docs, current_user)
+        docs = rerank_by_recency(docs)
+        return [Document(page_content=d["text"]) for d in docs]
+
+from langchain_core.retrievers import BaseRetriever
+
+class LangChainCompatibleRetriever(BaseRetriever):
+    """Wrap custom retriever để dùng với LangChain"""
+    
+    def _get_relevant_documents(self, query: str):
+        custom = CustomRetriever()
+        return custom.get_relevant_documents(query)
+
+# Bây giờ có thể dùng trong LangChain chain
+retriever = LangChainCompatibleRetriever()
+rag_chain = (
+    {"context": retriever | format_docs, "question": RunnablePassthrough()}
+    | prompt | claude | StrOutputParser()
+)
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0;"><h2>Tóm tắt chương</h2><p>- <strong>LCEL</strong>: Pipe operator để compose chains declaratively</p><p>- <strong>Document Loaders</strong>: PDF, Web, GitHub, Notion, etc.</p><p>- <strong>Memory</strong>: Buffer, Window, Summary - chọn theo use case</p><p>- <strong>Agents</strong>: Tool-calling với AgentExecutor</p><p>- <strong>LlamaIndex</strong>: RAG-focused, sub-question engine</p><p>- <strong>Framework vs Custom</strong>: Biết khi nào dùng gì</p><hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0;"><p><em>Chương tiếp theo: <strong>Vector Databases và Embeddings</strong></em></p>
+        </article>
+
+        <nav class="nav-links">
+            <a href="chuong-07.html">← Chương 7: RAG — Retrieval Augmented Generation</a>
+            <a href="chuong-09.html">Chương 9: Vector Databases & Embeddings →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>📚 ỨNG DỤNG AI THỰC CHIẾN — Chương 8/20</p>
+    </footer>
+</div>
+
+<script>
+function copyCode(btn) {
+    const code = btn.previousElementSibling.textContent;
+    navigator.clipboard.writeText(code).then(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 2000);
+    });
+}
+
+// Fix table rendering
+document.querySelectorAll('table').forEach(t => {
+    const rows = t.querySelectorAll('tr');
+    if (rows.length > 0) {
+        const firstRow = rows[0];
+        const cells = firstRow.querySelectorAll('td, th');
+        if (cells.length > 0 && firstRow.querySelectorAll('th').length === 0) {
+            firstRow.innerHTML = Array.from(cells).map(function(c) { return '<th>' + c.innerHTML + '</th>'; }).join('');
+            firstRow.querySelectorAll('th').forEach(function(th) { th.style.background = 'var(--secondary)'; });
+        }
+    }
+});
+</script>
+</body>
+</html>

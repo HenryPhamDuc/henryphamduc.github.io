@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chương 1: Tổng quan AI và LLMs — AI Thực Chiến</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #e94560;
+            --text: #eaeaea;
+            --text-muted: #a0a0a0;
+            --card-bg: #1f2a44;
+            --border: #2d3a5a;
+            --gold: #d4a843;
+            --code-bg: #0d1117;
+            --code-text: #e6edf3;
+        }
+        @font-face { font-family: 'VNTime'; src: local('Times New Roman'), local('Georgia'), local('serif'); }
+        body { font-family: 'VNTime', Georgia, serif; background: var(--primary); color: var(--text); line-height: 1.8; }
+        .container { max-width: 850px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+        header { margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+        .breadcrumbs { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem; }
+        .breadcrumbs a { color: var(--accent); text-decoration: none; }
+        .breadcrumbs a:hover { text-decoration: underline; }
+        h1 { font-size: 2rem; color: var(--gold); margin-bottom: 0.5rem; }
+        .chapter-meta { color: var(--text-muted); font-size: 0.95rem; }
+        main article { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 2.5rem; }
+        h2 { color: var(--gold); font-size: 1.5rem; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+        h3 { color: var(--accent); font-size: 1.2rem; margin: 1.5rem 0 0.75rem; }
+        h4 { color: var(--text); font-size: 1.05rem; margin: 1rem 0 0.5rem; }
+        p { margin-bottom: 1rem; text-align: justify; }
+        code { font-family: 'Fira Code', 'Consolas', monospace; background: var(--code-bg); color: #ff7b72; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.9em; }
+        pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; overflow-x: auto; margin: 1.5rem 0; position: relative; }
+        pre code { background: none; padding: 0; color: var(--code-text); font-size: 0.85rem; line-height: 1.6; display: block; }
+        .copy-btn { position: absolute; top: 0.75rem; right: 0.75rem; background: var(--accent); border: none; color: white; padding: 0.35rem 0.75rem; border-radius: 4px; cursor: pointer; font-size: 0.75rem; opacity: 0; transition: opacity 0.2s; }
+        pre:hover .copy-btn { opacity: 1; }
+        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+        th, td { border: 1px solid var(--border); padding: 0.75rem; text-align: left; }
+        th { background: var(--secondary); color: var(--gold); font-weight: 600; }
+        tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+        ul, ol { margin: 1rem 0 1rem 1.5rem; }
+        li { margin-bottom: 0.4rem; }
+        blockquote { border-left: 3px solid var(--accent); padding-left: 1rem; margin: 1.5rem 0; color: var(--text-muted); font-style: italic; }
+        .nav-links { display: flex; justify-content: space-between; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+        .nav-links a { color: var(--accent); text-decoration: none; font-weight: 500; padding: 0.5rem 1rem; border: 1px solid var(--accent); border-radius: 6px; transition: all 0.2s; }
+        .nav-links a:hover { background: var(--accent); color: white; }
+        footer { text-align: center; margin-top: 3rem; color: var(--text-muted); font-size: 0.85rem; }
+        @media (max-width: 600px) { article { padding: 1.5rem; } h1 { font-size: 1.6rem; } h2 { font-size: 1.3rem; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <nav class="breadcrumbs"><a href="index.html">🏠 Trang chủ</a> / <span>Chương 1</span></nav>
+        <h1>Chương 1: Tổng quan AI và LLMs</h1>
+        <p class="chapter-meta">Tổng quan AI và LLMs</p>
+    </header>
+
+    <main>
+        <article id="content">
+        <h1>CHƯƠNG 1: TỔNG QUAN VỀ TRÍ TUỆ NHÂN TẠO VÀ CÁC MÔ HÌNH NGÔN NGỮ LỚN</h1><h2>Giới thiệu chương</h2><p>Trong thập kỷ qua, trí tuệ nhân tạo (AI) đã chuyển mình từ một khái niệm khoa học viễn tưởng thành công nghệ cốt lõi trong mọi ngành công nghiệp. Là một kỹ sư, bạn đang bước vào thời điểm bước ngoặt lịch sử: các mô hình ngôn ngữ lớn (Large Language Models - LLMs) như Claude, ChatGPT và Gemini đang tái định hình cách con người tương tác với máy tính. Chương này sẽ xây dựng nền tảng vững chắc để bạn hiểu bức tranh toàn cảnh trước khi đi vào chi tiết kỹ thuật.</p><hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0;"><h2>1.1 Lịch sử phát triển của AI: Từ Rule-based đến Neural Networks</h2><h3>1.1.1 Thế hệ AI đầu tiên: Hệ thống dựa trên luật (1950-1980)</h3><p>Trí tuệ nhân tạo được khai sinh chính thức tại Hội nghị Dartmouth năm 1956. Những tiên phong như Alan Turing, John McCarthy và Marvin Minsky đặt câu hỏi mang tính thời đại: "Liệu máy móc có thể suy nghĩ được không?"</p><p>Thế hệ AI đầu tiên hoạt động dựa trên <strong>hệ thống chuyên gia (Expert Systems)</strong> — con người lập trình hàng nghìn luật logic:</p><pre><code class="language-text">IF nhiệt độ > 38.5 AND ho_khan = TRUE THEN có_thể_cảm_cúm = TRUE
+IF có_thể_cảm_cúm = TRUE AND đau_họng = TRUE THEN xác_suất_cúm = 85%
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><p><strong>Ưu điểm:</strong> Giải thích được, kiểm soát được, hoạt động tốt trong phạm vi hẹp.</p><p><strong>Nhược điểm:</strong> Không thể mở rộng, giòn (brittle) khi gặp tình huống mới, cần chuyên gia duy trì liên tục.</p><p>Ví dụ nổi tiếng: <strong>MYCIN</strong> (1972) — hệ thống chẩn đoán nhiễm khuẩn máu của Stanford, có khoảng 600 luật, đạt độ chính xác 65% (cao hơn cả bác sĩ tập sự).</p><h3>1.1.2 Mùa đông AI và sự trỗi dậy của Machine Learning (1980-2010)</h3><p>Hai "mùa đông AI" (1974-1980 và 1987-1993) xảy ra khi những hứa hẹn quá mức không được thực hiện. Kinh phí nghiên cứu cạn kiệt, niềm tin cộng đồng sụp đổ.</p><p>Tuy nhiên, trong bóng tối, một paradigm mới đang hình thành: <strong>Machine Learning</strong>. Thay vì lập trình luật, ta để máy tự học từ dữ liệu.</p><p><strong>Các cột mốc quan trọng:</strong></p><tr><td>Năm</td><td>Sự kiện</td></tr><tr><td>1986</td><td>Backpropagation được phổ biến bởi Rumelhart, Hinton, Williams</td></tr><tr><td>1989</td><td>Yann LeCun áp dụng CNN cho nhận dạng chữ viết tay</td></tr><tr><td>1997</td><td>Deep Blue của IBM đánh bại Kasparov ở cờ vua</td></tr><tr><td>1998</td><td>Support Vector Machines (SVM) thống trị NLP</td></tr><tr><td>2006</td><td>Geoffrey Hinton khởi động làn sóng Deep Learning</td></tr><h3>1.1.3 Cuộc cách mạng Deep Learning (2010-2017)</h3><p>Năm 2012 đánh dấu "Big Bang" của AI hiện đại: <strong>AlexNet</strong> — mạng neural sâu của Alex Krizhevsky — giành chiến thắng ImageNet với khoảng cách không tưởng, giảm error rate từ 26% xuống 15.3%.</p><p>Điều gì đã thay đổi?</p><p>1. <strong>Dữ liệu lớn</strong>: Internet tạo ra hàng tỷ ảnh, văn bản có nhãn</p><p>2. <strong>Sức mạnh GPU</strong>: NVIDIA CUDA cho phép song song hóa tính toán</p><p>3. <strong>Kiến trúc mới</strong>: Convolutional Neural Networks (CNN), Recurrent Neural Networks (RNN)</p><pre><code class="language-python"># Ví dụ đơn giản: Neural network 2 lớp với numpy
+import numpy as np
+
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+def forward_pass(X, W1, W2):
+    hidden = sigmoid(np.dot(X, W1))
+    output = sigmoid(np.dot(hidden, W2))
+    return output
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><h3>1.1.4 Kỷ nguyên Transformer: Nền tảng của LLMs (2017-nay)</h3><p>Năm 2017, nhóm Google Brain công bố paper <strong>"Attention is All You Need"</strong> — công trình thay đổi lịch sử AI. Kiến trúc <strong>Transformer</strong> ra đời, dựa hoàn toàn vào cơ chế <strong>Self-Attention</strong> thay cho RNN truyền thống.</p><p>Tại sao Transformer vượt trội?</p><p>- <strong>Xử lý song song</strong>: Không phụ thuộc tuần tự như RNN</p><p>- <strong>Nắm bắt phụ thuộc dài hạn</strong>: Có thể liên kết từ ở vị trí 1 với từ ở vị trí 1000</p><p>- <strong>Khả năng mở rộng</strong>: Có thể train với hàng nghìn GPU đồng thời</p><p>Từ Transformer, các mô hình ngôn ngữ lớn (LLMs) ra đời: GPT-1 (2018), BERT (2018), GPT-2 (2019), GPT-3 (2020), và đỉnh cao là ChatGPT (2022), Claude, Gemini.</p><hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0;"><h2>1.2 Mô hình ngôn ngữ lớn là gì?</h2><h3>1.2.1 Định nghĩa và bản chất</h3><p><strong>Mô hình ngôn ngữ lớn (Large Language Model - LLM)</strong> là một mô hình học sâu được train trên lượng dữ liệu văn bản khổng lồ, có khả năng hiểu và tạo ra ngôn ngữ tự nhiên.</p><p>Về bản chất, một LLM là một <strong>hàm xác suất</strong>:</p><pre><code class="language-text">P(từ_tiếp_theo | ngữ_cảnh_trước_đó)
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><p>Khi bạn hỏi: "Thủ đô của Việt Nam là..."</p><table><tr><th>LLM tính: P("Hà Nội"</th><th>"Thủ đô của Việt Nam là") ≈ 0.997</th></tr><p>Nhưng "lớn" ở đây có nghĩa gì?</p><tr><td>Mô hình</td><td>Số tham số</td><td>Năm</td></tr><tr><td>GPT-1</td><td>117 triệu</td><td>2018</td></tr><tr><td>GPT-2</td><td>1.5 tỷ</td><td>2019</td></tr><tr><td>GPT-3</td><td>175 tỷ</td><td>2020</td></tr><tr><td>GPT-4</td><td>~1.8 nghìn tỷ (ước tính)</td><td>2023</td></tr><tr><td>Claude 3 Opus</td><td>~2 nghìn tỷ (ước tính)</td><td>2024</td></tr><tr><td>Gemini Ultra</td><td>~1.56 nghìn tỷ (ước tính)</td><td>2023</td></tr><h3>1.2.2 Cách LLM "học"</h3><p>Quá trình train một LLM diễn ra theo hai giai đoạn chính:</p><p><strong>Giai đoạn 1: Pre-training (Học trước)</strong></p><p>Mô hình được train trên corpus khổng lồ (hàng nghìn tỷ token từ Internet, sách, code, khoa học...) với nhiệm vụ đơn giản: <strong>dự đoán từ tiếp theo</strong>.</p><pre><code class="language-text">Input:  "Hà Nội là thủ đô của"
+Target: "Việt"
+
+Input:  "Hà Nội là thủ đô của Việt"
+Target: "Nam"
+
+Input:  "Hà Nội là thủ đô của Việt Nam"
+Target: "."
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><p>Qua hàng nghìn tỷ ví dụ như vậy, mô hình học được ngữ pháp, ngữ nghĩa, kiến thức thực tế, lý luận logic, và thậm chí code.</p><p><strong>Giai đoạn 2: Fine-tuning với RLHF</strong></p><p>Sau pre-training, mô hình giỏi dự đoán nhưng chưa "hữu ích" cho người dùng. <strong>Reinforcement Learning from Human Feedback (RLHF)</strong> điều chỉnh mô hình:</p><li>Human trainers viết các câu trả lời mẫu tốt</li><li>Human rankers so sánh và xếp hạng các câu trả lời</li><p>3. <strong>Reward model</strong> học từ xếp hạng của người</p><li>LLM được tối ưu bằng PPO để tối đa hóa reward</li><h3>1.2.3 Tokenization: Cách LLM "đọc" văn bản</h3><p>LLM không đọc ký tự hay từ — chúng đọc <strong>token</strong>. Tokenizer chuyển đổi văn bản thành chuỗi số nguyên:</p><pre><code class="language-python"># Ví dụ với tiktoken (tokenizer của OpenAI)
+import tiktoken
+
+enc = tiktoken.get_encoding("cl100k_base")  # GPT-4 tokenizer
+text = "Xin chào! Tôi là kỹ sư AI."
+tokens = enc.encode(text)
+print(tokens)  # [55, 1591, 19921, 0, 358, 487, 39723, 15682, 6932, 13]
+print(len(tokens))  # 10 tokens
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><p>Điều này có ý nghĩa thực tế quan trọng:</p><li>Tiếng Anh: ~1 token/từ</li><li>Tiếng Việt: ~2-3 tokens/từ (tốn token hơn!)</li><li>Code: hiệu quả hơn văn bản thường</li><hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0;"><h2>1.3 Ba trụ cột: Claude, ChatGPT và Gemini</h2><h3>1.3.1 OpenAI và ChatGPT</h3><p><strong>OpenAI</strong> được thành lập năm 2015 bởi Elon Musk, Sam Altman và các nhà nghiên cứu hàng đầu với sứ mệnh "đảm bảo AI có lợi cho toàn nhân loại."</p><p><strong>ChatGPT</strong> ra mắt ngày 30/11/2022 — sự kiện làm rung chuyển thế giới công nghệ. Trong vòng 5 ngày, nó đạt 1 triệu người dùng (so với Netflix mất 3.5 năm). Đây là lần đầu tiên công chúng rộng rãi trải nghiệm LLM thực sự mạnh mẽ.</p><p>Các mô hình chính:</p><p>- <strong>GPT-3.5-turbo</strong>: Nhanh, rẻ, phù hợp production</p><p>- <strong>GPT-4</strong>: Mạnh nhất, đa phương thức (text + image)</p><p>- <strong>GPT-4o</strong>: "Omni" — nhanh hơn, rẻ hơn GPT-4</p><p>- <strong>o1, o3</strong>: Mô hình lý luận (reasoning) chuyên sâu</p><h3>1.3.2 Anthropic và Claude</h3><p><strong>Anthropic</strong> được thành lập năm 2021 bởi Dario Amodei, Daniela Amodei và nhiều cựu nhân viên OpenAI. Sứ mệnh: xây dựng AI an toàn và có thể hiểu được (interpretable).</p><p>Điểm khác biệt cốt lõi của Claude là <strong>Constitutional AI (CAI)</strong> — phương pháp huấn luyện độc đáo:</p><li>Định nghĩa "hiến pháp" (bộ nguyên tắc đạo đức)</li><li>Mô hình tự đánh giá câu trả lời theo hiến pháp</li><li>Tự cải thiện mà không cần human feedback cho mọi bước</li><p>Các phiên bản Claude:</p><p>- <strong>Claude Instant</strong>: Nhanh, tiết kiệm</p><p>- <strong>Claude 2</strong>: Cân bằng hiệu suất</p><p>- <strong>Claude 3 (Haiku/Sonnet/Opus)</strong>: Phân cấp tốc độ-chất lượng</p><p>- <strong>Claude 3.5 Sonnet</strong>: Hiện là model mạnh nhất của Anthropic</p><h3>1.3.3 Google DeepMind và Gemini</h3><p><strong>Google</strong> có lợi thế khổng lồ: dữ liệu tìm kiếm, YouTube, Gmail, Maps, và đội ngũ nghiên cứu AI đẳng cấp thế giới (DeepMind, Google Brain).</p><p><strong>Gemini</strong> (ra mắt 2023) là thế hệ mô hình đa phương thức gốc (natively multimodal):</p><p>- <strong>Gemini Nano</strong>: Chạy trên thiết bị (on-device)</p><p>- <strong>Gemini Pro</strong>: Cân bằng, phù hợp cho API</p><p>- <strong>Gemini Ultra</strong>: Mạnh nhất, vượt GPT-4 trên nhiều benchmark</p><p>- <strong>Gemini 1.5</strong>: Context window khổng lồ (1 triệu token!)</p><hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0;"><h2>1.4 So sánh tổng quan ba mô hình</h2><h3>1.4.1 Bảng so sánh kỹ thuật</h3><tr><td>Tiêu chí</td><td>ChatGPT (GPT-4o)</td><td>Claude (3.5 Sonnet)</td><td>Gemini (1.5 Pro)</td></tr><tr><td>Context window</td><td>128K token</td><td>200K token</td><td>1M token</td></tr><tr><td>Multimodal</td><td>Text, Image, Audio, Video</td><td>Text, Image</td><td>Text, Image, Audio, Video</td></tr><tr><td>Code generation</td><td>Xuất sắc</td><td>Xuất sắc</td><td>Tốt</td></tr><tr><td>Lý luận logic</td><td>Xuất sắc</td><td>Xuất sắc</td><td>Tốt</td></tr><tr><td>Tiếng Việt</td><td>Tốt</td><td>Tốt</td><td>Tốt</td></tr><tr><td>API giá (input/1M tokens)</td><td>$5</td><td>$3</td><td>$3.5</td></tr><tr><td>Tốc độ</td><td>Nhanh</td><td>Nhanh</td><td>Nhanh</td></tr><h3>1.4.2 Điểm mạnh riêng biệt</h3><p><strong>ChatGPT:</strong></p><li>Hệ sinh thái plugin và GPT Store phong phú nhất</li><li>Tích hợp DALL-E cho image generation</li><li>Code Interpreter cho data analysis</li><li>Brand recognition mạnh nhất</li><p><strong>Claude:</strong></p><li>Context window lớn (200K) — lý tưởng cho tài liệu dài</li><li>An toàn và ít "hallucination" hơn</li><li>Câu trả lời dài, chi tiết, có cấu trúc</li><li>Artifacts feature cho code/document generation</li><p><strong>Gemini:</strong></p><li>Tích hợp sâu vào hệ sinh thái Google (Search, Docs, Sheets)</li><li>Context window 1M token — phân tích toàn bộ codebase</li><li>Natively multimodal (xử lý video tốt nhất)</li><li>Google Search integration</li><hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0;"><h2>1.5 Kiến trúc Transformer — Hiểu sâu hơn</h2><h3>1.5.1 Cơ chế Self-Attention</h3><p>Đây là trái tim của mọi LLM hiện đại. Self-Attention cho phép mỗi token "nhìn" vào tất cả token khác trong chuỗi:</p><pre><code class="language-python">import numpy as np
+
+def self_attention(Q, K, V, d_k):
+    """
+    Q: Query matrix
+    K: Key matrix  
+    V: Value matrix
+    d_k: dimension of key vectors
+    """
+    # Tính attention scores
+    scores = np.dot(Q, K.T) / np.sqrt(d_k)
+    
+    # Softmax để chuẩn hóa
+    attention_weights = np.exp(scores) / np.sum(np.exp(scores), axis=-1, keepdims=True)
+    
+    # Weighted sum của Values
+    output = np.dot(attention_weights, V)
+    return output, attention_weights
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><p><strong>Ví dụ trực quan:</strong></p><p>Câu: "Con mèo ngồi trên tấm thảm vì nó mệt"</p><p>Khi xử lý từ "nó", Self-Attention tính toán:</p><li>"nó" liên quan đến "mèo" với weight cao (0.85)</li><li>"nó" liên quan đến "thảm" với weight thấp (0.05)</li><li>Mô hình hiểu "nó" = "mèo"</li><h3>1.5.2 Multi-Head Attention</h3><p>Một "head" attention chỉ học một loại relationship. <strong>Multi-Head Attention</strong> chạy nhiều head song song:</p><pre><code class="language-text">Head 1: Học quan hệ ngữ pháp (subject-verb)
+Head 2: Học quan hệ coreference (đại từ → danh từ)
+Head 3: Học quan hệ ngữ nghĩa (đồng nghĩa/trái nghĩa)
+...
+Head N: Học quan hệ vị trí (gần/xa)
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><h3>1.5.3 Positional Encoding</h3><p>Transformer không có khái niệm thứ tự vốn có (không như RNN). <strong>Positional Encoding</strong> thêm thông tin vị trí vào embedding:</p><pre><code class="language-python">def positional_encoding(seq_len, d_model):
+    PE = np.zeros((seq_len, d_model))
+    for pos in range(seq_len):
+        for i in range(0, d_model, 2):
+            PE[pos, i] = np.sin(pos / (10000 ** (i/d_model)))
+            PE[pos, i+1] = np.cos(pos / (10000 ** (i/d_model)))
+    return PE
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0;"><h2>1.6 Các khái niệm thiết yếu cho kỹ sư AI</h2><h3>1.6.1 Context Window và Token Budget</h3><p><strong>Context window</strong> là "bộ nhớ ngắn hạn" của LLM — số token tối đa trong một lần inference.</p><p>Thực tế kỹ thuật quan trọng:</p><pre><code class="language-text">Total context = System prompt + Conversation history + User message + Response
+
+Ví dụ với Claude 3.5 Sonnet (200K tokens):
+- System prompt: 500 tokens
+- Conversation history: 50,000 tokens
+- User message: 1,000 tokens  
+- Response: tối đa 148,500 tokens còn lại
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><p>Chi phí tính toán tăng <strong>bậc hai</strong> theo context length (O(n²)) với vanilla attention — đây là lý do LLMs tốn kém với context dài.</p><h3>1.6.2 Temperature và Sampling Strategies</h3><p><strong>Temperature</strong> kiểm soát độ "sáng tạo" vs "chính xác":</p><pre><code class="language-python">import numpy as np
+
+def sample_with_temperature(logits, temperature=1.0):
+    """
+    temperature = 0: Deterministic (luôn chọn token có prob cao nhất)
+    temperature = 1: Standard sampling
+    temperature > 1: Sáng tạo hơn, ngẫu nhiên hơn
+    """
+    if temperature == 0:
+        return np.argmax(logits)
+    
+    scaled_logits = logits / temperature
+    probs = np.exp(scaled_logits) / np.sum(np.exp(scaled_logits))
+    return np.random.choice(len(probs), p=probs)
+
+# Ứng dụng thực tế:
+# Code generation: temperature=0 (chính xác)
+# Creative writing: temperature=0.9 (sáng tạo)
+# Factual Q&A: temperature=0.2 (ổn định)
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><p><strong>Top-p (Nucleus Sampling):</strong> Chọn từ tập token có tổng probability ≥ p</p><pre><code class="language-python">def top_p_sampling(probs, p=0.9):
+    sorted_idx = np.argsort(probs)[::-1]
+    cumsum = np.cumsum(probs[sorted_idx])
+    # Giữ lại tokens đến khi tổng xác suất đạt p
+    nucleus = sorted_idx[cumsum <= p]
+    return np.random.choice(nucleus)
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><h3>1.6.3 Hallucination: Vấn đề cốt lõi của LLMs</h3><p><strong>Hallucination</strong> là khi LLM tạo ra thông tin sai nhưng nghe có vẻ đúng. Đây là hạn chế cơ bản:</p><pre><code class="language-text">User: "Einstein đã nhận giải Nobel năm nào?"
+GPT-4 (hallucination): "Einstein nhận giải Nobel năm 1915 cho thuyết tương đối đặc biệt."
+Thực tế: Einstein nhận giải Nobel năm 1921 cho hiệu ứng quang điện, không phải thuyết tương đối!
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><p>Nguyên nhân:</p><li>Train để "coherent", không phải "truthful"</li><li>Kiến thức bị "nén" và có thể mất chi tiết</li><li>Không có cơ chế kiểm tra nội tại</li><p>Cách giảm thiểu:</p><p>- <strong>RAG (Retrieval-Augmented Generation)</strong>: Cung cấp context thực tế</p><p>- <strong>Tool use</strong>: Cho LLM gọi API/database thay vì nhớ</p><p>- <strong>Temperature thấp</strong> cho factual tasks</p><p>- <strong>Grounding</strong>: Yêu cầu LLM trích dẫn nguồn</p><hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0;"><h2>1.7 Hệ sinh thái và ứng dụng thực tế</h2><h3>1.7.1 Các lớp ứng dụng AI</h3><pre><code class="language-text">┌─────────────────────────────────────────┐
+│        End-user Applications            │
+│    (ChatGPT, Claude.ai, Gemini.com)     │
+├─────────────────────────────────────────┤
+│         Application Layer               │
+│  (Chatbots, Code Assistants, Copilots)  │
+├─────────────────────────────────────────┤
+│         Orchestration Layer             │
+│    (LangChain, LlamaIndex, Haystack)    │
+├─────────────────────────────────────────┤
+│           API Layer                     │
+│  (OpenAI API, Anthropic API, Vertex AI) │
+├─────────────────────────────────────────┤
+│         Foundation Models               │
+│     (GPT-4, Claude, Gemini, Llama)      │
+└─────────────────────────────────────────┘
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><h3>1.7.2 Các use case chính theo ngành</h3><p><strong>Engineering & Development:</strong></p><li>Code generation (GitHub Copilot)</li><li>Code review và bug detection</li><li>Documentation generation</li><li>Test case writing</li><p><strong>Data & Analytics:</strong></p><li>SQL generation từ natural language</li><li>Data visualization từ mô tả</li><li>Report summarization</li><li>Anomaly explanation</li><p><strong>Business:</strong></p><li>Customer service automation</li><li>Content creation</li><li>Document processing</li><li>Knowledge management</li><h3>1.7.3 ROI và Business Case</h3><p>Theo McKinsey (2023), generative AI có thể tạo ra giá trị từ $2.6 đến $4.4 nghìn tỷ USD mỗi năm. Các lĩnh vực hưởng lợi nhiều nhất:</p><p>1. <strong>Software Engineering</strong>: Tăng 20-45% năng suất developer</p><p>2. <strong>Customer Operations</strong>: Giảm 30-40% thời gian xử lý</p><p>3. <strong>Marketing</strong>: Giảm 60-70% thời gian tạo content</p><p>4. <strong>R&D</strong>: Rút ngắn 25-35% chu kỳ nghiên cứu</p><hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0;"><h2>1.8 Lộ trình học cho kỹ sư</h2><h3>1.8.1 Prerequisite Knowledge</h3><p>Trước khi đi sâu vào LLM applications, bạn cần vững:</p><p><strong>Python (bắt buộc):</strong></p><pre><code class="language-python"># Nếu bạn chưa thoải mái với code này, hãy ôn lại Python trước:
+import asyncio
+import json
+from typing import Optional, List, Dict
+from dataclasses import dataclass
+
+@dataclass
+class Message:
+    role: str
+    content: str
+    
+async def chat_with_llm(messages: List[Message]) -> Optional[str]:
+    # Async programming pattern
+    # Type hints
+    # Dataclasses
+    pass
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><p><strong>API & HTTP Basics:</strong></p><li>REST APIs, HTTP methods (GET, POST)</li><li>JSON format</li><li>Authentication (API keys, Bearer tokens)</li><li>Rate limiting</li><p><strong>Cơ bản về ML (tốt nếu có):</strong></p><li>Linear algebra cơ bản (vectors, matrices)</li><li>Probability và statistics</li><li>Gradient descent concept</li><h3>1.8.2 Roadmap 20 chương của cuốn sách này</h3><pre><code class="language-text">PHẦN 1: NỀN TẢNG (Chương 1-4)
+├── Chương 1: Tổng quan AI và LLMs ← Bạn đang đây
+├── Chương 2: Prompt Engineering cơ bản
+├── Chương 3: Làm việc với OpenAI API (ChatGPT)
+└── Chương 4: Làm việc với Anthropic API (Claude)
+
+PHẦN 2: KỸ THUẬT TRUNG CẤP (Chương 5-9)
+├── Chương 5: Làm việc với Google AI API (Gemini)
+├── Chương 6: Prompt Engineering nâng cao
+├── Chương 7: RAG - Retrieval Augmented Generation
+├── Chương 8: LangChain và Orchestration Frameworks
+└── Chương 9: Vector Databases và Embeddings
+
+PHẦN 3: XÂY DỰNG ỨNG DỤNG (Chương 10-14)
+├── Chương 10: Xây dựng Chatbot production
+├── Chương 11: AI Agents và Tool Use
+├── Chương 12: Fine-tuning và Custom Models
+├── Chương 13: Multimodal Applications
+└── Chương 14: Code Generation và Developer Tools
+
+PHẦN 4: PRODUCTION & SCALE (Chương 15-17)
+├── Chương 15: Deployment và Infrastructure
+├── Chương 16: Monitoring, Evaluation và Testing
+└── Chương 17: Cost Optimization
+
+PHẦN 5: CHUYÊN SÂU (Chương 18-20)
+├── Chương 18: AI Safety và Ethics
+├── Chương 19: Emerging Patterns và Trends
+└── Chương 20: Xây dựng AI Startup
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0;"><h2>1.9 Môi trường phát triển</h2><h3>1.9.1 Setup cơ bản</h3><pre><code class="language-bash"># Tạo virtual environment
+python -m venv ai-env
+source ai-env/bin/activate  # macOS/Linux
+# ai-env\Scripts\activate  # Windows
+
+# Cài đặt thư viện thiết yếu
+pip install openai anthropic google-generativeai
+pip install langchain langchain-community
+pip install python-dotenv jupyter notebook
+pip install numpy pandas matplotlib seaborn
+pip install fastapi uvicorn  # Cho API server
+pip install streamlit  # Cho demo UI nhanh
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><h3>1.9.2 Quản lý API Keys an toàn</h3><pre><code class="language-python"># .env file (KHÔNG commit vào Git!)
+OPENAI_API_KEY=sk-proj-...
+ANTHROPIC_API_KEY=sk-ant-...
+GOOGLE_API_KEY=AIza...
+
+# .gitignore
+.env
+*.env
+env/
+venv/
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><pre><code class="language-python"># config.py
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+class Config:
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+    ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+    GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+    
+    @classmethod
+    def validate(cls):
+        missing = []
+        for key in ["OPENAI_API_KEY", "ANTHROPIC_API_KEY", "GOOGLE_API_KEY"]:
+            if not getattr(cls, key):
+                missing.append(key)
+        if missing:
+            raise ValueError(f"Missing API keys: {', '.join(missing)}")
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><h3>1.9.3 Test nhanh ba APIs</h3><pre><code class="language-python"># test_apis.py
+import openai
+import anthropic
+import google.generativeai as genai
+from config import Config
+
+Config.validate()
+
+def test_openai():
+    client = openai.OpenAI(api_key=Config.OPENAI_API_KEY)
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": "Say 'OpenAI working!' in Vietnamese"}],
+        max_tokens=50
+    )
+    print("OpenAI:", response.choices[0].message.content)
+
+def test_claude():
+    client = anthropic.Anthropic(api_key=Config.ANTHROPIC_API_KEY)
+    response = client.messages.create(
+        model="claude-3-5-sonnet-20241022",
+        max_tokens=50,
+        messages=[{"role": "user", "content": "Say 'Claude working!' in Vietnamese"}]
+    )
+    print("Claude:", response.content[0].text)
+
+def test_gemini():
+    genai.configure(api_key=Config.GOOGLE_API_KEY)
+    model = genai.GenerativeModel("gemini-1.5-flash")
+    response = model.generate_content("Say 'Gemini working!' in Vietnamese")
+    print("Gemini:", response.text)
+
+if __name__ == "__main__":
+    test_openai()
+    test_claude()
+    test_gemini()
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0;"><h2>1.10 Xu hướng và tương lai</h2><h3>1.10.1 Các xu hướng kỹ thuật 2024-2025</h3><p><strong>1. Multimodality trở thành standard</strong></p><p>Không còn là "text only" — mọi mô hình frontier đều xử lý được image, audio, video.</p><p><strong>2. Long context revolution</strong></p><p>Từ 4K (GPT-3) → 128K (GPT-4) → 200K (Claude) → 1M (Gemini 1.5) → không giới hạn?</p><p><strong>3. AI Agents</strong></p><p>LLMs không chỉ trả lời mà còn thực hiện hành động: browse web, viết và chạy code, gọi APIs, điều khiển máy tính.</p><p><strong>4. Smaller, faster, cheaper models</strong></p><p>GPT-4o mini, Claude Haiku, Gemini Flash — chất lượng 80-90% với chi phí 5-10%.</p><p><strong>5. Open-source catching up</strong></p><p>Llama 3 (Meta), Mistral, Qwen 2 — open-source đang thu hẹp khoảng cách với closed-source.</p><h3>1.10.2 Kỹ năng kỹ sư AI tương lai</h3><pre><code class="language-text">2024: Prompt Engineering, RAG, API integration
+2025: Agent development, fine-tuning, evaluation
+2026: Multimodal systems, on-device AI
+2027: AI-native architecture design
+</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre><hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0;"><h2>Tóm tắt chương</h2><p>Trong chương này, chúng ta đã:</p><p>1. <strong>Điểm qua lịch sử AI</strong> từ Expert Systems → Machine Learning → Deep Learning → LLMs</p><p>2. <strong>Hiểu bản chất LLM</strong>: Hàm xác suất khổng lồ được train trên văn bản</p><p>3. <strong>So sánh ba trụ cột</strong>: ChatGPT (hệ sinh thái), Claude (an toàn), Gemini (multimodal)</p><p>4. <strong>Nắm kiến trúc Transformer</strong>: Self-Attention, Multi-Head Attention, Positional Encoding</p><p>5. <strong>Hiểu các khái niệm kỹ thuật</strong>: Tokenization, Temperature, Hallucination</p><p>6. <strong>Setup môi trường</strong> phát triển cơ bản</p><h2>Bài tập thực hành</h2><p>1. <strong>Setup môi trường</strong>: Cài đặt Python 3.11+, tạo virtual env, install dependencies</p><p>2. <strong>Đăng ký API keys</strong>: OpenAI (có free trial), Anthropic, Google AI Studio</p><p>3. <strong>Chạy test_apis.py</strong>: Xác nhận cả 3 APIs hoạt động</p><p>4. <strong>Tokenizer experiment</strong>: Dùng tiktoken, đếm số token trong một đoạn văn tiếng Anh vs tiếng Việt</p><p>5. <strong>Temperature experiment</strong>: Gọi API với temperature 0, 0.5, 1.0 và so sánh kết quả</p><h2>Câu hỏi ôn tập</h2><li>Sự khác biệt cơ bản giữa hệ thống AI dựa trên luật và LLMs là gì?</li><li>Tại sao "Attention is All You Need" lại là bước đột phá?</li><li>RLHF giải quyết vấn đề gì mà pre-training không giải quyết được?</li><li>Tại sao hallucination là vấn đề khó giải quyết về mặt bản chất?</li><li>Trong dự án của bạn, khi nào nên dùng Claude thay vì ChatGPT?</li><hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0;"><p><em>Chương tiếp theo: <strong>Prompt Engineering cơ bản</strong> — nghệ thuật và khoa học giao tiếp với LLMs</em></p>
+        </article>
+
+        <nav class="nav-links">
+            <a href="index.html">← Trang chủ</a>
+            <a href="chuong-02.html">Chương 2: Prompt Engineering Cơ bản →</a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>📚 ỨNG DỤNG AI THỰC CHIẾN — Chương 1/20</p>
+    </footer>
+</div>
+
+<script>
+function copyCode(btn) {
+    const code = btn.previousElementSibling.textContent;
+    navigator.clipboard.writeText(code).then(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 2000);
+    });
+}
+
+// Fix table rendering
+document.querySelectorAll('table').forEach(t => {
+    const rows = t.querySelectorAll('tr');
+    if (rows.length > 0) {
+        const firstRow = rows[0];
+        const cells = firstRow.querySelectorAll('td, th');
+        if (cells.length > 0 && firstRow.querySelectorAll('th').length === 0) {
+            firstRow.innerHTML = Array.from(cells).map(function(c) { return '<th>' + c.innerHTML + '</th>'; }).join('');
+            firstRow.querySelectorAll('th').forEach(function(th) { th.style.background = 'var(--secondary)'; });
+        }
+    }
+});
+</script>
+</body>
+</html>
