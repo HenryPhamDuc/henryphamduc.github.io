@@ -688,4 +688,585 @@ Mục tiêu cuối cùng của chúng ta không phải là tạo ra một cỗ m
 
 ---
 
-*Chương này được tổng hợp từ các ghi chú nghiên cứu về Metacognition in AI, bao gồm: AISP (AI Socratic Paradox), Fluency Illusion, ACTIVE Framework, Reflexion, Multi-Agent Debate, Meta-Rewards, Neural Monitoring, QNHF Theory, Uncertainty Quantification, Ambiguity Awareness, Causal AI, và Signification Problem.*
+## 13. DỰ ÁN THỰC HÀNH: TÍCH HỢP NOTEBOOKLM MCP VỚI CLAUDE CHO NGHIÊN CỨU TỰ ĐỘNG
+
+### 13.1 Tổng Quan Kiến Trúc
+
+Mô hình **NotebookLM MCP + Claude** tạo ra một quy trình nghiên cứu thống nhất (unified research workflow) khắc phục được việc chuyển đổi ngữ cảnh (context switching) giữa thu thập dữ liệu và sinh mã/đầu ra.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    RESEARCHER (NGƯỜI)                           │
+│  "Tạo bài thuyết trình về use case Cowork cho creators"        │
+└──────────────────────┬──────────────────────────────────────────┘
+                       │ Natural language request
+                       ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      CLAUDE (ORCHESTRATOR)                      │
+│  • Custom Skill: Autonomous Research → Presentation            │
+│  • Phân tích request → Chuỗi truy vấn tuần tự                  │
+│  • Tổng hợp insights → Context-aware prompt cho NotebookLM     │
+└──────────────────────┬──────────────────────────────────────────┘
+                       │ MCP Protocol (OAuth)
+                       ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                   NOTEBOOKLM MCP SERVER                         │
+│  • 50+ nguồn nghiên cứu (docs, PDFs, URLs, YouTube)            │
+│  • Deep research: Briefing docs, Study guides, Audio overviews │
+│  • Truy vấn ngữ nghĩa trên toàn bộ kho dữ liệu                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+| Khía cạnh | Quy trình truyền thống | Quy trình MCP-Based |
+|-----------|------------------------|---------------------|
+| **Truy xuất dữ liệu** | Truy vấn thủ công, lặp lại | Tự động, truy vấn tuần tự qua MCP |
+| **Hiệu quả** | Tốn thời gian, dễ lỗi | Nhanh, ít can thiệp thủ công |
+| **Chất lượng output** | Tóm tắt chung chung, mất dữ liệu | Nhận biết ngữ cảnh, chi tiết, liên quan |
+| **Tiêu thụ tài nguyên** | Token cao do tìm kiếm lặp | Tối ưu token với tổng hợp tự động |
+
+### 13.2 Cài Đặt NotebookLM MCP Server (Windows)
+
+```powershell
+# 1. Cài đặt Node.js (nếu chưa có)
+winget install OpenJS.NodeJS.LTS
+
+# 2. Clone & cài đặt NotebookLM MCP
+git clone https://github.com/notebooklm/mcp-server.git
+cd mcp-server
+npm install
+
+# 3. Xác thực (OAuth)
+npm run auth
+# → Mở trình duyệt → Đăng nhập Google → Cho phép truy cập NotebookLM
+
+# 4. Cấu hình
+# Chỉnh sửa config.json:
+# {
+#   "notebooklm": {
+#     "notebook_ids": ["your-notebook-id-1", "your-notebook-id-2"],
+#     "query_types": ["briefing_doc", "study_guide", "audio_overview", "mind_map"]
+#   },
+#   "server": { "port": 3000, "host": "localhost" }
+# }
+
+# 5. Test server
+npm run test
+# Kết quả mong đợi: "MCP Server running on http://localhost:3000"
+
+# 6. Chạy nền (Production)
+npm run start:prod
+# Hoặc dùng PM2: npm i -g pm2 && pm2 start index.js --name notebooklm-mcp
+```
+
+### 13.3 Kết Nối MCP Server Với Claude Desktop
+
+```json
+// %APPDATA%\Claude\claude_desktop_config.json
+{
+  "mcpServers": {
+    "notebooklm": {
+      "command": "node",
+      "args": ["C:\\path\\to\\mcp-server\\index.js"],
+      "env": {
+        "NOTEBOOKLM_API_KEY": "your-api-key",
+        "MCP_PORT": "3000"
+      }
+    }
+  }
+}
+```
+
+Sau khi khởi động lại Claude Desktop:
+1. Mở **Settings → Search and Tools**
+2. Chọn **"Add External Connector"** → **NotebookLM MCP**
+3. Xác thực OAuth → Chạy test query: *"Liệt kê 5 notebook gần nhất"*
+
+### 13.4 Tạo Custom Claude Skills Cho Tự Động Hóa Nghiên Cứu
+
+**Skill: Autonomous Research → Presentation Deck**
+
+```json
+// skills/research-to-presentation.json
+{
+  "name": "research-to-presentation",
+  "description": "Tự động nghiên cứu từ NotebookLM và tạo bài thuyết trình",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "topic": { "type": "string", "description": "Chủ đề nghiên cứu" },
+      "audience": { "type": "string", "enum": ["technical", "executive", "general", "creators"] },
+      "slide_count": { "type": "integer", "minimum": 10, "maximum": 50, "default": 20 },
+      "notebook_ids": { "type": "array", "items": { "type": "string" } }
+    },
+    "required": ["topic", "audience"]
+  },
+  "workflow": [
+    {
+      "step": "decompose_topic",
+      "prompt": "Phân tích chủ đề '{topic}' thành 5-7 câu hỏi nghiên cứu con cho audience {audience}"
+    },
+    {
+      "step": "sequential_queries",
+      "loop": "questions",
+      "prompt": "Tìm kiếm trong NotebookLM: '{question}'. Trích xuất insights chính, citations, và conflicting views."
+    },
+    {
+      "step": "synthesize",
+      "prompt": "Tổng hợp {N} kết quả tìm kiếm. Xác định themes chung, outliers, gaps. Tạo outline {slide_count} slides."
+    },
+    {
+      "step": "generate_deck",
+      "prompt": "Tạo briefing document cho NotebookLM tạo presentation deck. Audience: {audience}. Format: Slides với title, bullet points, speaker notes, citations."
+    }
+  ],
+  "output": {
+    "presentation_deck": "Google Slides / PowerPoint / Markdown",
+    "research_summary": "Briefing document (NotebookLM format)",
+    "citations": "Danh sách nguồn với page/section references",
+    "audio_overview": "Optional: Podcast-style audio summary"
+  }
+}
+```
+
+**Đăng ký skill với Claude:**
+```bash
+# Cách 1: Qua Claude Desktop UI
+Settings → Skills → Import → Chọn file JSON
+
+# Cách 2: Qua CLI (nếu có)
+claude skill install research-to-presentation.json
+```
+
+### 13.5 Use Case Thực Tế: Nghiên Cứu Tự Động → Presentation Deck
+
+**Input:** *"Tôi cần bài thuyết trình 20 slides về use case Cowork platforms cho content creators. Audience: creators. Nguồn: 50 notebooks trong NotebookLM."*
+
+**Quy trình tự động:**
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant C as Claude (Skill)
+    participant N as NotebookLM MCP
+    
+    U->>C: "Tạo deck Cowork cho creators (20 slides)"
+    C->>C: Decompose → 7 research questions
+    loop 7 questions
+        C->>N: Query: "Cowork monetization models"
+        N-->>C: 5 sources + insights
+        C->>N: Query: "Creator collaboration workflows"
+        N-->>C: 8 sources + insights
+        ...
+    end
+    C->>C: Synthesize → Outline 20 slides
+    C->>N: Generate briefing_doc → Presentation deck
+    N-->>C: Slides + citations + speaker notes
+    C-->>U: Deck hoàn chỉnh + Research summary + Audio overview
+```
+
+**Outputs nhận được:**
+- 📊 **Presentation Deck** (20 slides, citations mỗi slide)
+- 📄 **Research Briefing Doc** (NotebookLM format, 15 pages)
+- 🎧 **Audio Overview** (10-min podcast style)
+- 🗺️ **Mind Map** (Interactive, linked to sources)
+- 📋 **Citation Index** (Source → Page → Claim mapping)
+
+### 13.6 Best Practices & Technical Considerations
+
+| Lĩnh vực | Khuyến nghị |
+|----------|-------------|
+| **Token Optimization** | Dùng sequential queries thay vì single large query; cache NotebookLM responses |
+| **Error Handling** | Retry với exponential backoff; fallback về manual query nếu MCP timeout |
+| **Data Freshness** | Schedule nightly sync: `notebooklm sync --all` |
+| **Access Control** | OAuth scopes tối thiểu: `notebooklm.read`, `notebooklm.query` |
+| **Monitoring** | Log query latency, success rate, token usage per skill execution |
+| **Versioning** | Skill versioning: `research-to-presentation@v1.2.0` |
+
+### 13.7 Mở Rộng: Multi-Agent Research Pipeline
+
+```python
+# research_pipeline.py
+from dataclasses import dataclass
+from typing import List, Optional
+from enum import Enum
+
+class AgentRole(Enum):
+    PLANNER = "planner"           # Phân rã topic → research questions
+    SEARCHER = "searcher"         # Query NotebookLM MCP
+    ANALYST = "analyst"           # Phân tích, so sánh, tìm gaps
+    SYNTHESIZER = "synthesizer"   # Tổng hợp → outline
+    CRITIC = "critic"             # Review chất lượng, tìm bias
+    FORMATTER = "formatter"       # Tạo output cuối (deck, doc, audio)
+
+@dataclass
+class ResearchTask:
+    topic: str
+    audience: str
+    notebook_ids: List[str]
+    output_formats: List[str]  # ["slides", "briefing_doc", "audio", "mindmap"]
+    quality_threshold: float = 0.85
+
+@dataclass
+class MultiAgentResearchPipeline:
+    mcp_client: Any
+    claude_client: Any
+    
+    def execute(self, task: ResearchTask) -> dict:
+        # 1. Planning
+        plan = self.planner_agent(task)
+        
+        # 2. Parallel Search
+        search_results = []
+        for q in plan.questions:
+            for nb_id in task.notebook_ids:
+                result = self.searcher_agent(q, nb_id)
+                search_results.append(result)
+        
+        # 3. Analysis
+        analysis = self.analyst_agent(search_results)
+        
+        # 4. Synthesis
+        outline = self.synthesizer_agent(analysis, task)
+        
+        # 5. Critic Loop
+        quality = 0.0
+        while quality < task.quality_threshold:
+            draft = self.formatter_agent(outline, task)
+            quality = self.critic_agent(draft, task)
+            if quality < task.quality_threshold:
+                outline = self.refine_outline(outline, quality.feedback)
+        
+        # 6. Final outputs
+        return self.generate_outputs(draft, task.output_formats)
+```
+
+---
+
+## 14. KẾ HOẠCH TRIỂN KHAI MÔI TRƯỜNG PC CÁ NHÂN (WINDOWS)
+
+### 14.1 Mục Tiêu
+
+Xây dựng **môi trường AI research & development** hoàn chỉnh trên Windows, tích hợp:
+- NotebookLM MCP + Claude Desktop
+- Local LLMs (Ollama) cho offline/private workloads
+- Vector DB (Qdrant) cho RAG cá nhân
+- Automation pipeline (Python + PowerShell)
+- Monitoring & Cost tracking
+
+### 14.2 Kiến Trúc Hệ Thống PC
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│                     WINDOWS HOST (PC Henry)                    │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌───────────┐ │
+│  │ Claude      │ │ NotebookLM  │ │ Ollama      │ │ Qdrant    │ │
+│  │ Desktop     │ │ MCP Server  │ │ (Local LLMs)│ │ (VectorDB)│ │
+│  │ + Skills    │ │ (Node.js)   │ │ llama3.1,   │ │ Port 6333 │ │
+│  │             │ │ Port 3000   │ │ codellama,  │ │           │ │
+│  │             │ │             │ │ nomic-embed │ │           │ │
+│  └──────┬──────┘ └──────┬──────┘ └──────┬──────┘ └─────┬──────┘ │
+│         │               │               │              │        │
+│         └───────────────┼───────────────┼──────────────┘        │
+│                         ▼               ▼                       │
+│              ┌─────────────────────────────────────────────┐   │
+│              │           PYTHON AUTOMATION LAYER           │   │
+│              │  • research_pipeline.py                     │   │
+│              │  • cost_tracker.py                          │   │
+│              │  • sync_scheduler.py (Windows Task)         │   │
+│              │  • health_monitor.py                        │   │
+│              └─────────────────────────────────────────────┘   │
+│                         │                                       │
+│                         ▼                                       │
+│              ┌─────────────────────────────────────────────┐   │
+│              │         DATA STORAGE (Local)                │   │
+│              │  D:\AI_Data\                                │   │
+│              │  ├── notebooks\ (NotebookLM exports)        │   │
+│              │  ├── vectors\ (Qdrant data)                 │   │
+│              │  ├── models\ (Ollama models)                │   │
+│              │  ├── logs\ (pipeline runs, costs)           │   │
+│              │  └── outputs\ (decks, reports, audio)       │   │
+│              └─────────────────────────────────────────────┘   │
+└────────────────────────────────────────────────────────────────┘
+```
+
+### 14.3 Cài Đặt Chi Tiết (Windows PowerShell Admin)
+
+```powershell
+# ============================================================
+# 1. PREREQUISITES
+# ============================================================
+# Chocolatey (Package Manager)
+Set-ExecutionPolicy Bypass -Scope Process -Force
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+# Core tools
+choco install -y nodejs-lts python git vscode docker-desktop
+choco install -y ollama qdrant
+choco install -y ffmpeg  # cho audio processing
+
+# Verify
+node --version && python --version && ollama --version
+
+# ============================================================
+# 2. OLLAMA LOCAL LLMS
+# ============================================================
+# Start service
+ollama serve
+
+# Pull models (trong PowerShell khác)
+ollama pull llama3.1:8b        # General purpose
+ollama pull codellama:13b      # Coding
+ollama pull nomic-embed-text   # Embeddings
+ollama pull llava:7b           # Vision
+
+# Test
+ollama run llama3.1:8b "Test Vietnamese: Xin chào"
+
+# ============================================================
+# 3. QDRANT VECTOR DATABASE
+# ============================================================
+# Run as service
+qdrant --config-path D:\AI_Data\qdrant\config.yaml
+
+# Config: D:\AI_Data\qdrant\config.yaml
+# storage:
+#   path: D:\AI_Data\qdrant\storage
+# service:
+#   http_port: 6333
+#   grpc_port: 6334
+
+# Test
+curl http://localhost:6333/collections
+
+# ============================================================
+# 4. NOTEBOOKLM MCP SERVER
+# ============================================================
+git clone https://github.com/notebooklm/mcp-server.git D:\AI_Tools\notebooklm-mcp
+cd D:\AI_Tools\notebooklm-mcp
+npm install
+
+# Config: D:\AI_Tools\notebooklm-mcp\config.json
+# {
+#   "notebooklm": {
+#     "notebook_ids": ["<your-notebook-ids>"],
+#     "query_types": ["briefing_doc", "study_guide", "audio_overview", "mind_map"]
+#   },
+#   "server": { "port": 3000, "host": "127.0.0.1" },
+#   "storage": { "cache_dir": "D:\\AI_Data\\mcp_cache" }
+# }
+
+# Auth
+npm run auth
+
+# Test
+npm run test
+
+# Install as Windows Service (NSSM)
+# nssm install NotebookLM-MCP "node" "D:\AI_Tools\notebooklm-mcp\index.js"
+# nssm set NotebookLM-MCP AppDirectory "D:\AI_Tools\notebooklm-mcp"
+# nssm start NotebookLM-MCP
+
+# ============================================================
+# 5. CLAUDE DESKTOP + MCP CONFIG
+# ============================================================
+# File: %APPDATA%\Claude\claude_desktop_config.json
+{
+  "mcpServers": {
+    "notebooklm": {
+      "command": "node",
+      "args": ["D:\\AI_Tools\\notebooklm-mcp\\index.js"],
+      "env": { "MCP_PORT": "3000" }
+    },
+    "qdrant": {
+      "command": "npx",
+      "args": ["-y", "@qdrant/mcp-server", "--url", "http://localhost:6333"]
+    },
+    "ollama": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-ollama", "--host", "http://localhost:11434"]
+    }
+  }
+}
+
+# ============================================================
+# 6. PYTHON AUTOMATION ENVIRONMENT
+# ============================================================
+python -m venv D:\AI_Env\research-env
+D:\AI_Env\research-env\Scripts\Activate.ps1
+
+pip install --upgrade pip
+pip install \
+  qdrant-client \
+  ollama \
+  langchain langchain-community langchain-ollama \
+  anthropic openai google-generativeai \
+  python-dotenv \
+  pyyaml pydantic pydantic-settings \
+  rich typer \
+  schedule \
+  psutil \
+  matplotlib pandas openpyxl \
+  python-pptx \
+  jupyterlab
+
+# Dev tools
+pip install pytest pytest-asyncio black ruff mypy
+
+# ============================================================
+# 7. PROJECT STRUCTURE
+# ============================================================
+mkdir D:\AI_Projects\metacognition-research
+cd D:\AI_Projects\metacognition-research
+
+# Structure:
+# .
+# ├── config/
+# │   ├── settings.yaml
+# │   ├── skills/
+# │   │   └── research-to-presentation.json
+# │   └── prompts/
+# ├── src/
+# │   ├── __init__.py
+# │   ├── pipeline/
+# │   │   ├── __init__.py
+# │   │   ├── research_pipeline.py
+# │   │   ├── agents.py
+# │   │   └── skills_manager.py
+# │   ├── integrations/
+# │   │   ├── __init__.py
+# │   │   ├── notebooklm_mcp.py
+# │   │   ├── qdrant_client.py
+# │   │   └── ollama_client.py
+# │   ├── utils/
+# │   │   ├── __init__.py
+# │   │   ├── cost_tracker.py
+# │   │   ├── logger.py
+# │   │   └── helpers.py
+# │   └── cli.py
+# ├── tests/
+# ├── data/
+# │   ├── inputs/
+# │   └── outputs/
+# ├── scripts/
+# │   ├── sync_notebooks.ps1
+# │   ├── backup_data.ps1
+# │   └── health_check.ps1
+# ├── requirements.txt
+# ├── pyproject.toml
+# └── README.md
+```
+
+### 14.4 Config Files
+
+```yaml
+# config/settings.yaml
+app:
+  name: "Metacognition Research Pipeline"
+  version: "1.0.0"
+  data_dir: "D:/AI_Data"
+  log_level: "INFO"
+
+notebooklm_mcp:
+  host: "127.0.0.1"
+  port: 3000
+  notebook_ids: []  # Fill from NotebookLM
+  timeout: 120
+  retry_attempts: 3
+
+qdrant:
+  host: "127.0.0.1"
+  port: 6333
+  collection_prefix: "research_"
+  vector_size: 768  # nomic-embed-text
+
+ollama:
+  host: "http://127.0.0.1:11434"
+  models:
+    chat: "llama3.1:8b"
+    code: "codellama:13b"
+    embed: "nomic-embed-text"
+    vision: "llava:7b"
+
+claude:
+  desktop_config: "%APPDATA%/Claude/claude_desktop_config.json"
+  skills_dir: "config/skills"
+
+pipeline:
+  default_quality_threshold: 0.85
+  max_iterations: 3
+  parallel_search: true
+  cache_ttl_hours: 24
+
+cost_tracking:
+  enabled: true
+  currency: "USD"
+  models:
+    claude-3.5-sonnet: { input: 3.0, output: 15.0 }  # per 1M tokens
+    gpt-4o: { input: 5.0, output: 15.0 }
+    gemini-1.5-pro: { input: 3.5, output: 10.5 }
+  local_models_cost: 0.0
+
+scheduler:
+  sync_notebooks: "0 2 * * *"      # Daily 2 AM
+  backup_data: "0 3 * * 0"         # Weekly Sunday 3 AM
+  health_check: "*/15 * * * *"     # Every 15 min
+  cost_report: "0 9 1 * *"         # Monthly 1st 9 AM
+```
+
+### 14.5 Core Python Modules (Key Files)
+
+- `src/integrations/notebooklm_mcp.py` — MCP client with query, sequential_queries, generate_output
+- `src/integrations/qdrant_client.py` — Personal RAG with hybrid search (semantic + keyword)
+- `src/integrations/ollama_client.py` — Local LLM client with cost tracking ($0)
+- `src/utils/cost_tracker.py` — SQLite-based cost tracking per session/month
+- `src/pipeline/research_pipeline.py` — Multi-agent pipeline (Planner→Searcher→Analyst→Synthesizer→Critic→Formatter) with critic loop
+
+### 14.6 PowerShell Maintenance Scripts
+
+```powershell
+# scripts/sync_notebooks.ps1 - Daily sync NotebookLM → Qdrant
+# scripts/health_check.ps1 - Every 15 min monitor Ollama/Qdrant/MCP
+# scripts/backup_data.ps1 - Weekly robocopy to external drive
+```
+
+### 14.7 Windows Task Scheduler (Run as Admin)
+
+| Task | Schedule | Purpose |
+|------|----------|---------|
+| `AI_NotebookLM_Sync` | Daily 2:00 AM | Sync notebooks → Qdrant |
+| `AI_Data_Backup` | Weekly Sun 3:00 AM | Backup to external drive |
+| `AI_Health_Check` | Every 15 min | Monitor all services |
+| `AI_Cost_Report` | Monthly 1st 9:00 AM | API cost report |
+
+### 14.8 Metacognitive Principles Applied
+
+1. **AI as Mirror** — Skills yêu cầu AI phản biện, không chỉ trả lời
+2. **Think First** — Planner agent forces decomposition before search
+3. **Verification is Bottleneck** — Critic loop với quality threshold
+4. **Calibrate Confidence** — Cost tracker + quality scores
+5. **Three Habits** — Humility, Flexibility, Vigilance baked into agent prompts
+
+---
+
+## KẾT LUẬN: SỰ KHIÊM NHƯỢNG — CẦU NỐI GIỮA NGƯỜI VÀ MÁY
+
+Việc nghiên cứu Metacognition trong AI không chỉ nhằm tạo ra những cỗ máy thông minh hơn, mà là làm cho chúng **an toàn và đáng tin cậy hơn** trong sự hợp tác với con người. 3 bài học cốt lõi:
+
+> 🧠 **Trí tuệ thực sự là biết giới hạn:**  
+> Một hệ thống AI hoàn hảo không phải là hệ thống biết tuốt, mà là hệ thống biết khi nào nên nói: *"Tôi không chắc, hãy hỏi bác sĩ của bạn"*
+
+> ⚖️ **Hiệu chuẩn là chìa khóa:**  
+> Sự tự tin của máy tính phải luôn song hành với độ chính xác thực tế. Mọi sự lệch pha đều tiềm ẩn rủi ro sinh tử.
+
+> 🤝 **Hợp tác là đích đến:**  
+> Metacognition chính là ngôn ngữ chung để máy tính có thể giao tiếp với con người về những gì nó **không thể** làm được.
+
+---
+
+**Lời nhắn nhủ cuối cùng:**  
+Mục tiêu cuối cùng của chúng ta không phải là tạo ra một cỗ máy biết tuốt, mà là một cỗ máy **đủ thông minh để biết dừng lại đúng lúc và hỏi ý kiến con người**. Đó không phải là điểm yếu của công nghệ, mà là **đỉnh cao của sự khiêm nhường tri thức** — cầu nối vững chắc nhất giữa trí tuệ nhân tạo và nhân loại.
+
+---
+
+*Chương này được tổng hợp từ các ghi chú nghiên cứu về Metacognition in AI, bao gồm: AISP (AI Socratic Paradox), Fluency Illusion, ACTIVE Framework, Reflexion, Multi-Agent Debate, Meta-Rewards, Neural Monitoring, QNHF Theory, Uncertainty Quantification, Ambiguity Awareness, Causal AI, Signification Problem, và dự án tích hợp NotebookLM MCP + Claude.*
