@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ỨNG DỤNG AI THỰC CHIẾN: Từ Kỹ sư đến AI Expert</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #e94560;
+            --text: #eaeaea;
+            --text-muted: #a0a0a0;
+            --card-bg: #1f2a44;
+            --border: #2d3a5a;
+            --gold: #d4a843;
+        }
+        @font-face { font-family: 'VNTime'; src: local('Times New Roman'), local('Georgia'), local('serif'); }
+        body { font-family: 'VNTime', Georgia, serif; background: var(--primary); color: var(--text); line-height: 1.7; min-height: 100vh; }
+        .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+        header { text-align: center; margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 2px solid var(--border); }
+        h1 { font-size: 2.5rem; color: var(--gold); margin-bottom: 0.5rem; font-weight: 700; letter-spacing: 0.5px; }
+        .subtitle { font-size: 1.2rem; color: var(--text-muted); font-style: italic; }
+        .meta { margin-top: 1rem; font-size: 0.95rem; color: var(--text-muted); }
+        .part { margin-bottom: 2.5rem; }
+        .part-title { font-size: 1.4rem; color: var(--gold); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.75rem; }
+        .part-title::before { content: ""; width: 4px; height: 1.2em; background: var(--accent); border-radius: 2px; }
+        .chapters { display: grid; gap: 0.75rem; }
+        .chapter { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; transition: all 0.2s ease; position: relative; overflow: hidden; }
+        .chapter::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--accent); opacity: 0; transition: opacity 0.2s; }
+        .chapter:hover { border-color: var(--accent); transform: translateX(4px); box-shadow: 0 4px 20px rgba(233, 69, 96, 0.15); }
+        .chapter:hover::before { opacity: 1; }
+        .chapter-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 0.5rem; }
+        .chapter-num { font-size: 0.85rem; color: var(--accent); font-weight: 700; white-space: nowrap; }
+        .chapter-title { font-size: 1.1rem; font-weight: 600; color: var(--text); }
+        .chapter-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; }
+        .chapter-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
+        .tag { font-size: 0.75rem; background: rgba(233, 69, 96, 0.15); color: var(--accent); padding: 0.2rem 0.6rem; border-radius: 999px; border: 1px solid rgba(233, 69, 96, 0.3); }
+        .toc-link { text-decoration: none; color: inherit; display: block; }
+        .toc-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+        footer { text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.9rem; }
+        .lang-toggle { position: fixed; top: 1rem; right: 1rem; z-index: 100; }
+        .lang-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 0.85rem; transition: all 0.2s; }
+        .lang-btn:hover { border-color: var(--accent); color: var(--accent); }
+        @media (max-width: 600px) {
+            h1 { font-size: 1.8rem; }
+            .chapter { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="lang-toggle"><button class="lang-btn" onclick="toggleLang()">EN / VI</button></div>
+    <div class="container">
+        <header>
+            <h1>ỨNG DỤNG AI THỰC CHIẾN</h1>
+            <p class="subtitle">Từ Kỹ sư đến AI Expert</p>
+            <p class="meta">Hướng dẫn toàn diện về Claude, ChatGPT và Gemini · 20 Chương · 5 Phần</p>
+        </header>
+
+        <main>
+            <!-- Part 1 -->
+            <section class="part">
+                <h2 class="part-title">PHẦN 1: NỀN TẢNG (Chương 1–5)</h2>
+                <div class="chapters">
+                    <a class="toc-link chapter" href="chuong-01.html">
+                        <div class="chapter-header"><span class="chapter-num">Chương 1</span><span class="chapter-title">Tổng quan AI và LLMs</span></div>
+                        <p class="chapter-desc">Lịch sử AI, Transformer, so sánh Claude/GPT/Gemini, kiến trúc LLM, tokenization, context window, temperature, hallucination.</p>
+                        <div class="chapter-tags"><span class="tag">Lịch sử</span><span class="tag">Transformer</span><span class="tag">So sánh 3 model</span><span class="tag">Kiến thức cốt lõi</span></div>
+                    </a>
+                    <a class="toc-link chapter" href="chuong-02.html">
+                        <div class="chapter-header"><span class="chapter-num">Chương 2</span><span class="chapter-title">Prompt Engineering Cơ bản</span></div>
+                        <p class="chapter-desc">Zero-shot, Few-shot, Chain-of-Thought, Role prompting, Structured output, Delimiters, Negative instructions, Prompt chaining, Template system.</p>
+                        <div class="chapter-tags"><span class="tag">Zero/Few-shot</span><span class="tag">CoT</span><span class="tag">Templates</span><span class="tag">Production patterns</span></div>
+                    </a>
+                    <a class="toc-link chapter" href="chuong-03.html">
+                        <div class="chapter-header"><span class="chapter-num">Chương 3</span><span class="chapter-title">OpenAI API (ChatGPT)</span></div>
+                        <p class="chapter-desc">Chat Completions, Streaming, Function Calling, Vision, Embeddings, Whisper/TTS, Batch API, Assistants API, Production error handling.</p>
+                        <div class="chapter-tags"><span class="tag">Function Calling</span><span class="tag">Vision</span><span class="tag">Streaming</span><span class="tag">Batch API</span></div>
+                    </a>
+                    <a class="toc-link chapter" href="chuong-04.html">
+                        <div class="chapter-header"><span class="chapter-num">Chương 4</span><span class="chapter-title">Anthropic API (Claude)</span></div>
+                        <p class="chapter-desc">Messages API, Tool Use, Vision, Prompt Caching (90% tiết kiệm), Batch API, Long document (200K), Production monitoring.</p>
+                        <div class="chapter-tags"><span class="tag">Prompt Caching</span><span class="tag">200K Context</span><span class="tag">Tool Use</span><span class="tag">Constitutional AI</span></div>
+                    </a>
+                    <a class="toc-link chapter" href="chuong-05.html">
+                        <div class="chapter-header"><span class="chapter-num">Chương 5</span><span class="chapter-title">Google Gemini API</span></div>
+                        <p class="chapter-desc">Natively multimodal, 1M context, Video/Audio analysis, Google Search Grounding, Vertex AI, Structured output với Pydantic.</p>
+                        <div class="chapter-tags"><span class="tag">Video Analysis</span><span class="tag">1M Tokens</span><span class="tag">Search Grounding</span><span class="tag">Multimodal</span></div>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Part 2 -->
+            <section class="part">
+                <h2 class="part-title">PHẦN 2: KỸ THUẬT TRUNG CẤP (Chương 6–9)</h2>
+                <div class="chapters">
+                    <a class="toc-link chapter" href="chuong-06.html">
+                        <div class="chapter-header"><span class="chapter-num">Chương 6</span><span class="chapter-title">Prompt Engineering Nâng cao</span></div>
+                        <p class="chapter-desc">ReAct, Tree of Thoughts, Self-Consistency, Meta-prompting, Multi-agent debate, Prompt compression, Auto-optimization, Adversarial testing.</p>
+                        <div class="chapter-tags"><span class="tag">ReAct</span><span class="tag">ToT</span><span class="tag">Self-Consistency</span><span class="tag">Meta-prompting</span></div>
+                    </a>
+                    <a class="toc-link chapter" href="chuong-07.html">
+                        <div class="chapter-header"><span class="chapter-num">Chương 7</span><span class="chapter-title">RAG — Retrieval Augmented Generation</span></div>
+                        <p class="chapter-desc">Chunking strategies, Embeddings, Hybrid search (BM25+Semantic), Re-ranking, Query expansion, SimpleRAG from scratch, AdvancedRAG patterns.</p>
+                        <div class="chapter-tags"><span class="tag">Chunking</span><span class="tag">Hybrid Search</span><span class="tag">Re-ranking</span><span class="tag">From Scratch</span></div>
+                    </a>
+                    <a class="toc-link chapter" href="chuong-08.html">
+                        <div class="chapter-header"><span class="chapter-num">Chương 8</span><span class="chapter-title">LangChain & Orchestration</span></div>
+                        <p class="chapter-desc">LCEL, Document loaders, Text splitters, Memory (Buffer/Window/Summary), Agents, LlamaIndex sub-question engine, Hybrid framework/custom.</p>
+                        <div class="chapter-tags"><span class="tag">LCEL</span><span class="tag">Memory</span><span class="tag">Agents</span><span class="tag">LlamaIndex</span></div>
+                    </a>
+                    <a class="toc-link chapter" href="chuong-09.html">
+                        <div class="chapter-header"><span class="chapter-num">Chương 9</span><span class="chapter-title">Vector Databases & Embeddings</span></div>
+                        <p class="chapter-desc">Embedding models comparison, Similarity metrics, Dimensionality reduction, Quantization, Pinecone/Qdrant/pgvector/Chroma code, Semantic search engine.</p>
+                        <div class="chapter-tags"><span class="tag">Pinecone</span><span class="tag">Qdrant</span><span class="tag">pgvector</span><span class="tag">Quantization</span></div>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Part 3 -->
+            <section class="part">
+                <h2 class="part-title">PHẦN 3: XÂY DỰNG ỨNG DỤNG (Chương 10–14)</h2>
+                <div class="chapters">
+                    <a class="toc-link chapter" href="chuong-10.html">
+                        <div class="chapter-header"><span class="chapter-num">Chương 10</span><span class="chapter-title">Production Chatbot</span></div>
+                        <p class="chapter-desc">Session management (Redis), Intent routing, Context manager, Safety filters, PII detection, Full FastAPI + WebSocket implementation.</p>
+                        <div class="chapter-tags"><span class="tag">Redis Sessions</span><span class="tag">Intent Router</span><span class="tag">Safety/PII</span><span class="tag">WebSocket</span></div>
+                    </a>
+                    <a class="toc-link chapter" href="chuong-11-12.html">
+                        <div class="chapter-header"><span class="chapter-num">Chương 11</span><span class="chapter-title">AI Agents & Tool Use</span></div>
+                        <p class="chapter-desc">Tool definitions, Agent loop, Specialized agents (Data, Code, Research), Multi-agent orchestrator, Planning & execution.</p>
+                        <div class="chapter-tags"><span class="tag">Agent Loop</span><span class="tag">Multi-Agent</span><span class="tag">Code Agent</span><span class="tag">Data Agent</span></div>
+                    </a>
+                    <a class="toc-link chapter" href="chuong-11-12.html#ch12">
+                        <div class="chapter-header"><span class="chapter-num">Chương 12</span><span class="chapter-title">Fine-tuning & Custom Models</span></div>
+                        <p class="chapter-desc">OpenAI Fine-tuning API, LoRA/QLoRA, Data preparation, Evaluation, When to fine-tune vs RAG, Cost optimization.</p>
+                        <div class="chapter-tags"><span class="tag">OpenAI FT</span><span class="tag">LoRA/QLoRA</span><span class="tag">Data Prep</span><span class="tag">RAG vs FT</span></div>
+                    </a>
+                    <a class="toc-link chapter" href="chuong-13-14.html">
+                        <div class="chapter-header"><span class="chapter-num">Chương 13</span><span class="chapter-title">Multimodal Applications</span></div>
+                        <p class="chapter-desc">Image understanding (Claude), Document processing (Invoice/ID/Medical), Video analysis (Gemini), Audio (Whisper/TTS), Document intelligence pipeline.</p>
+                        <div class="chapter-tags"><span class="tag">Video Analysis</span><span class="tag">OCR/Document</span><span class="tag">Audio</span><span class="tag">Pipeline</span></div>
+                    </a>
+                    <a class="toc-link chapter" href="chuong-13-14.html#ch14">
+                        <div class="chapter-header"><span class="chapter-num">Chương 14</span><span class="chapter-title">Code Generation & Developer Tools</span></div>
+                        <p class="chapter-desc">Code generation, Review, Documentation, Test generation, Refactoring, Security analysis, Developer productivity tools.</p>
+                        <div class="chapter-tags"><span class="tag">Code Gen</span><span class="tag">Code Review</span><span class="tag">Test Gen</span><span class="tag">Security</span></div>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Part 4 -->
+            <section class="part">
+                <h2 class="part-title">PHẦN 4: PRODUCTION & SCALE (Chương 15–17)</h2>
+                <div class="chapters">
+                    <a class="toc-link chapter" href="chuong-15-20.html">
+                        <div class="chapter-header"><span class="chapter-num">Chương 15</span><span class="chapter-title">Deployment & Infrastructure</span></div>
+                        <p class="chapter-desc">Docker, Docker Compose, Kubernetes manifests, GitHub Actions CI/CD, Helm charts, Secrets management, Health checks, Rolling updates.</p>
+                        <div class="chapter-tags"><span class="tag">Docker/K8s</span><span class="tag">CI/CD</span><span class="tag">Helm</span><span class="tag">GitHub Actions</span></div>
+                    </a>
+                    <a class="toc-link chapter" href="chuong-15-20.html#ch16">
+                        <div class="chapter-header"><span class="chapter-num">Chương 16</span><span class="chapter-title">Monitoring, Evaluation & Testing</span></div>
+                        <p class="chapter-desc">Prometheus/Grafana, LLM evaluation (correctness, faithfulness, relevance), A/B testing, Prompt regression tests, Synthetic data generation.</p>
+                        <div class="chapter-tags"><span class="tag">Prometheus</span><span class="tag">LLM Eval</span><span class="tag">A/B Testing</span><span class="tag">Regression</span></div>
+                    </a>
+                    <a class="toc-link chapter" href="chuong-15-20.html#ch17">
+                        <div class="chapter-header"><span class="chapter-num">Chương 17</span><span class="chapter-title">Cost Optimization</span></div>
+                        <p class="chapter-desc">Model routing, Caching (Redis + semantic), Prompt compression, Batch API, Token budgeting, Cost dashboards, Fallback strategies.</p>
+                        <div class="chapter-tags"><span class="tag">Model Routing</span><span class="tag">Caching</span><span class="tag">Prompt Compression</span><span class="tag">Batch API</span></div>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Part 5 -->
+            <section class="part">
+                <h2 class="part-title">PHẦN 5: CHUYÊN SÂU (Chương 18–20)</h2>
+                <div class="chapters">
+                    <a class="toc-link chapter" href="chuong-15-20.html#ch18">
+                        <div class="chapter-header"><span class="chapter-num">Chương 18</span><span class="chapter-title">AI Safety & Ethics</span></div>
+                        <p class="chapter-desc">Bias detection, Privacy/GDPR, Constitutional AI, Red teaming, Content moderation, Responsible AI practices, Audit trails.</p>
+                        <div class="chapter-tags"><span class="tag">Bias Detection</span><span class="tag">GDPR</span><span class="tag">Red Teaming</span><span class="tag">Constitutional AI</span></div>
+                    </a>
+                    <a class="toc-link chapter" href="chuong-15-20.html#ch19">
+                        <div class="chapter-header"><span class="chapter-num">Chương 19</span><span class="chapter-title">Emerging Patterns & Trends</span></div>
+                        <p class="chapter-desc">Reasoning models (o1/o3), Computer Use (Claude), On-device AI, Agentic workflows, Multi-modal reasoning, Future roadmap.</p>
+                        <div class="chapter-tags"><span class="tag">Reasoning Models</span><span class="tag">Computer Use</span><span class="tag">On-device</span><span class="tag">Agentic</span></div>
+                    </a>
+                    <a class="toc-link chapter" href="chuong-15-20.html#ch20">
+                        <div class="chapter-header"><span class="chapter-num">Chương 20</span><span class="chapter-title">Xây dựng AI Startup</span></div>
+                        <p class="chapter-desc">MVP development, Pricing strategy, Go-to-market, Technical roadmap, Fundraising, Team building, Scaling from 0 to 1.</p>
+                        <div class="chapter-tags"><span class="tag">MVP</span><span class="tag">Pricing</span><span class="tag">GTM</span><span class="tag">Fundraising</span></div>
+                    </a>
+                    <a class="toc-link chapter" href="chuong-metacognition-ai.html">
+                        <div class="chapter-header"><span class="chapter-num">Chương X</span><span class="chapter-title">Siêu Nhận Thức Trong AI</span></div>
+                        <p class="chapter-desc">AISP, Fluency Illusion, ACTIVE Framework, Self-Correction, Meta-Rewards, Neural Monitoring, Uncertainty Quantification, Ambiguity Awareness, Causal AI, Signification Problem.</p>
+                        <div class="chapter-tags"><span class="tag">Metacognition</span><span class="tag">Self-Correction</span><span class="tag">Uncertainty</span><span class="tag">Causal AI</span></div>
+                    </a>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>📚 <strong>ỨNG DỤNG AI THỰC CHIẾN</strong> — Hướng dẫn toàn diện từ Kỹ sư đến AI Expert</p>
+            <p>Viết bởi AI Expert Guide · Cập nhật 2025 · <a href="https://github.com/henryphamduc" style="color: var(--accent);" target="_blank">GitHub</a></p>
+            <p style="margin-top: 0.5rem;">"The future is already here — it's just not evenly distributed." — William Gibson</p>
+        </footer>
+    </div>
+
+    <script>
+        function toggleLang() {
+            alert('English version coming soon! / Phiên bản tiếng Anh sắp ra mắt!');
+        }
+    </script>
+</body>
+</html>
