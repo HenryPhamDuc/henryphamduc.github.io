@@ -634,3 +634,130 @@ a:hover { color: var(--teal-dark); text-decoration: underline; text-underline-of
     gap: 8px;
   }
 }
+
+
+/* ===========================================================================
+   Process Instrumentation & Control Domain Styles
+   =========================================================================== */
+:root {
+  --process: #0284c7;          /* process cyan / industrial blue */
+  --process-dark: #0369a1;
+  --process-soft: #e0f2fe;
+  --process-bg: #f8fafc;
+  --linkedin: #0a66c2;
+  --linkedin-dark: #004182;
+  --linkedin-soft: #e8f4f9;
+}
+
+.btn-process {
+  background: var(--process) !important;
+  color: #fff !important;
+  border: 1px solid var(--process-dark) !important;
+}
+.btn-process:hover {
+  background: var(--process-dark) !important;
+  text-decoration: none !important;
+}
+
+.domain-process {
+  background: var(--process-bg);
+  border-top: 1px solid var(--border);
+}
+.domain-process .domain-eyebrow {
+  color: var(--process);
+}
+.domain-process .project-badge {
+  background: var(--process-soft);
+  color: var(--process-dark);
+}
+.domain-process .project-card:hover {
+  border-color: var(--process);
+}
+.domain-process .primary-pill:hover {
+  background: var(--process);
+  border-color: var(--process);
+  color: #ffffff !important;
+}
+
+/* Process Status Bar */
+.process-status-bar {
+  max-width: 860px;
+  margin: -24px auto 44px;
+  background: #ffffff;
+  border: 1px solid #bae6fd;
+  border-radius: 999px;
+  padding: 10px 24px;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.06);
+}
+.process-status-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 13.5px;
+}
+.status-indicator-process {
+  width: 9px;
+  height: 9px;
+  background: var(--process);
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
+  animation: pulse-process 2s infinite;
+}
+@keyframes pulse-process {
+  0% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(2, 132, 199, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0); }
+}
+.process-badge {
+  color: #0f172a !important;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  transition: all 0.15s ease;
+}
+.process-badge strong {
+  color: var(--process);
+}
+.process-badge:hover {
+  background: var(--process-soft);
+  border-color: #7dd3fc;
+  text-decoration: none !important;
+}
+.process-badge.linkedin-badge strong {
+  color: var(--linkedin);
+}
+.process-badge.linkedin-badge:hover {
+  background: var(--linkedin-soft);
+  border-color: #90cdf4;
+}
+
+.linkedin-btn {
+  background: #f0f7ff !important;
+  color: var(--linkedin) !important;
+  border: 1px solid #bae6fd !important;
+  font-weight: 600 !important;
+}
+.linkedin-btn:hover {
+  background: var(--linkedin) !important;
+  color: #ffffff !important;
+  border-color: var(--linkedin-dark) !important;
+}
+
+@media (max-width: 640px) {
+  .process-status-bar {
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 32px;
+  }
+  .process-status-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+  }
+}
