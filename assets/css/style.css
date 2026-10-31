@@ -105,7 +105,9 @@ a:hover { color: var(--teal-dark); text-decoration: underline; text-underline-of
 @media (max-width: 720px) {
   .nav { flex-direction: column; gap: 12px; padding: 12px 16px; }
   .nav-links { flex-wrap: wrap; justify-content: center; }
-  .brand-text { display: none; }
+  /* No logo mark in the header any more — keep the name as the brand on mobile */
+  .brand-name { font-size: 17px; }
+  .brand-sub { display: none; }
 }
 
 /* ===========================================================================
