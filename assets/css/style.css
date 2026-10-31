@@ -161,6 +161,7 @@ a:hover { color: var(--teal-dark); text-decoration: underline; text-underline-of
 }
 .hero-lede.vi { color: rgba(255, 255, 255, .82); font-size: clamp(15px, 1.6vw, 17px); }
 .hero-cta { margin-top: 32px; display: flex; flex-wrap: wrap; gap: 12px; }
+.hero-cta .btn { font-size: 14.5px; padding: 11px 18px; }
 .btn {
   display: inline-flex; align-items: center; gap: 8px;
   padding: 12px 22px; border-radius: 10px;
@@ -760,4 +761,251 @@ a:hover { color: var(--teal-dark); text-decoration: underline; text-underline-of
     text-align: center;
     gap: 8px;
   }
+}
+
+/* ===========================================================================
+   Business Intelligence Domain — GrandBizPlan / ProBizIntel
+   =========================================================================== */
+:root {
+  --bizintel: #6b5aa8;          /* strategy violet */
+  --bizintel-dark: #4c3f80;
+  --bizintel-soft: #f0edf9;
+  --bizintel-line: #ddd6f3;
+  --bizintel-bg: #faf9fd;
+}
+
+.btn-bizintel {
+  background: var(--bizintel) !important;
+  color: #fff !important;
+  border: 1px solid var(--bizintel-dark) !important;
+  box-shadow: 0 4px 14px rgba(107, 90, 168, .35);
+}
+.btn-bizintel:hover {
+  background: var(--bizintel-dark) !important;
+  color: #fff !important;
+  text-decoration: none !important;
+}
+
+.domain-bizintel {
+  background: var(--bizintel-bg);
+  border-top: 1px solid var(--border);
+}
+.domain-bizintel .domain-eyebrow { color: var(--bizintel); }
+.domain-bizintel .project-badge {
+  background: var(--bizintel-soft);
+  color: var(--bizintel-dark);
+}
+.domain-bizintel .project-card:hover { border-color: var(--bizintel); }
+.domain-bizintel .primary-pill:hover {
+  background: var(--bizintel);
+  border-color: var(--bizintel);
+  color: #ffffff !important;
+}
+
+/* BizIntel Status Bar */
+.bizintel-status-bar {
+  max-width: 860px;
+  margin: -24px auto 44px;
+  background: #ffffff;
+  border: 1px solid var(--bizintel-line);
+  border-radius: 999px;
+  padding: 10px 24px;
+  box-shadow: 0 2px 8px rgba(107, 90, 168, 0.06);
+}
+.bizintel-status-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 13.5px;
+}
+.status-indicator-bizintel {
+  width: 9px;
+  height: 9px;
+  background: var(--bizintel);
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 0 3px rgba(107, 90, 168, 0.2);
+  animation: pulse-bizintel 2s infinite;
+}
+@keyframes pulse-bizintel {
+  0% { box-shadow: 0 0 0 0 rgba(107, 90, 168, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(107, 90, 168, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(107, 90, 168, 0); }
+}
+.bizintel-badge {
+  color: #0f172a !important;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  transition: all 0.15s ease;
+}
+.bizintel-badge strong { color: var(--bizintel); }
+.bizintel-badge:hover {
+  background: var(--bizintel-soft);
+  border-color: var(--bizintel-line);
+  text-decoration: none !important;
+}
+.bizintel-badge.linkedin-badge strong { color: var(--linkedin); }
+.bizintel-badge.linkedin-badge:hover {
+  background: var(--linkedin-soft);
+  border-color: #90cdf4;
+}
+
+@media (max-width: 640px) {
+  .bizintel-status-bar {
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 32px;
+  }
+  .bizintel-status-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+  }
+}
+
+/* ===========================================================================
+   Platform Overview — introduction + five-portal mindmap
+   =========================================================================== */
+.platform {
+  background: linear-gradient(180deg, #f7f8fa 0%, #ffffff 62%);
+  border-top: 1px solid var(--border);
+}
+.platform-header { text-align: center; max-width: 820px; margin: 0 auto 40px; }
+.platform-eyebrow {
+  font-size: 13px; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--teal-dark);
+  margin-bottom: 12px;
+}
+.platform-lede {
+  font-size: 16.5px; line-height: 1.72; color: var(--text-muted);
+  margin-top: 8px;
+}
+.platform-lede.vi { font-size: 15.5px; color: var(--text-soft); }
+.platform-lede strong { color: var(--text); }
+
+/* Mindmap canvas */
+.platform-map-wrap {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 4px 0 8px;
+  -webkit-overflow-scrolling: touch;
+}
+.platform-map {
+  display: block;
+  width: 100%;
+  min-width: 660px;
+  max-width: 1000px;
+  height: auto;
+  margin: 0 auto;
+}
+.platform-node { cursor: pointer; text-decoration: none; }
+.platform-node rect.platform-node-box {
+  transition: stroke-width .15s ease, filter .15s ease;
+}
+.platform-node:hover rect.platform-node-box {
+  stroke-width: 2.6;
+  filter: drop-shadow(0 6px 14px rgba(15, 23, 42, .12));
+}
+.platform-node:focus { outline: none; }
+.platform-node:focus-visible rect.platform-node-box {
+  stroke-width: 3;
+  stroke-dasharray: 6 4;
+}
+
+/* Shared-method spine */
+.platform-spine {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 8px auto 48px;
+  padding: 0;
+  max-width: 1000px;
+}
+.platform-spine li {
+  display: flex; align-items: center; gap: 8px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 8px 16px 8px 10px;
+  font-size: 13px; color: var(--text-muted);
+  box-shadow: var(--shadow);
+}
+.platform-spine .spine-step {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--teal-soft); color: var(--teal-dark);
+  font-size: 10.5px; font-weight: 700;
+}
+.platform-spine strong { color: var(--text); font-weight: 600; }
+
+/* Five-portal index */
+.platform-index {
+  list-style: none;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  margin: 0;
+  padding: 0;
+}
+.platform-card {
+  display: flex; flex-direction: column; gap: 6px;
+  height: 100%;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--accent, var(--teal));
+  border-radius: 12px;
+  padding: 16px 18px 18px;
+  text-decoration: none !important;
+  color: var(--text);
+  box-shadow: var(--shadow);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.platform-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+  color: var(--text);
+}
+.platform-card .pc-num {
+  font-family: var(--font-mono);
+  font-size: 11px; font-weight: 700; letter-spacing: .08em;
+  color: var(--accent, var(--teal));
+}
+.platform-card .pc-name {
+  font-family: var(--font-tight);
+  font-size: 16px; font-weight: 700; line-height: 1.25;
+}
+.platform-card .pc-desc {
+  font-size: 12.8px; line-height: 1.5; color: var(--text-muted);
+}
+.platform-card .pc-go {
+  margin-top: auto; padding-top: 8px;
+  font-size: 12px; font-weight: 600; color: var(--accent, var(--teal));
+}
+
+@media (max-width: 900px) {
+  .platform-spine { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+}
+@media (max-width: 720px) {
+  .platform-spine { margin-bottom: 36px; }
+  .platform-spine li { font-size: 12px; padding: 6px 12px 6px 8px; }
+}
+
+/* ===========================================================================
+   Nav compression (five domains now in the bar)
+   =========================================================================== */
+.nav-links { flex-wrap: wrap; justify-content: flex-end; gap: 4px; }
+.nav-links a { font-size: 13.5px; padding: 7px 10px; }
+@media (max-width: 1320px) {
+  .brand-sub { display: none; }
+  .nav-links a { font-size: 13px; padding: 6px 8px; }
+}
+@media (max-width: 1080px) {
+  .nav-links a { font-size: 12.5px; padding: 6px 7px; }
 }
