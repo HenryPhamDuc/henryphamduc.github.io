@@ -7,13 +7,15 @@ ecosystem.
 ## Live
 
 - **EN**: <https://henryphamduc.github.io/>
+- **ES**: <https://henryphamduc.github.io/es/>
 - **VI**: <https://henryphamduc.github.io/vi/>
 
 ## What's here
 
-A single static `index.html` (plus a Vietnamese mirror at `/vi/`), three
-small assets (one CSS file, one JS file, two compressed hero images), and
-a `.nojekyll` so GitHub Pages serves the bytes verbatim with no processing.
+A single static `index.html` (plus Spanish and Vietnamese mirrors at `/es/`
+and `/vi/`), three small assets (one CSS file, one JS file, two compressed
+hero images), and a `.nojekyll` so GitHub Pages serves the bytes verbatim
+with no processing.
 
 No build step. Edit the HTML, commit, push, GitHub Pages deploys.
 
@@ -46,6 +48,7 @@ python -m http.server 8000
 ## Editing
 
 - `index.html` — English landing page
+- `es/index.html` — Spanish landing page
 - `vi/index.html` — Vietnamese landing page
 - `assets/css/style.css` — single stylesheet (tennis + taichi palette)
 - `assets/js/script.js` — current-year + smooth-scroll
