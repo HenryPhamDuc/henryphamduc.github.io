@@ -36,7 +36,7 @@ python -m http.server 8000
 - [Tennis Future Lab](https://henryphamduc.github.io/tennis-future-lab/) (biomechanics + AI)
 - [Tennis Doctor](https://tennis-doctor.henry-phamduc.workers.dev/) (AI chat)
 - [Tennis Control System Guide](https://henryphamduc.github.io/tennis-guide/)
-- [Tennis for Every One blog](https://tennis-for-everyone.blogspot.com/)
+- [Tennis for Every One blog](https://protennis-player.github.io/blog/index.html)
 - [Tennis Knowledge Base — Facebook](https://www.facebook.com/tennisknowledgebase/)
 
 ### Tai Chi
